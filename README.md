@@ -2,6 +2,12 @@
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.1.2.
 
+## Firebase Configuration
+
+To enable authentication and database sync:
+1. Copy `src/environments/environment.example.ts` to `src/environments/environment.ts` (and `src/environments/environment.prod.ts`).
+2. Add your Firebase project configuration keys (`apiKey`, `projectId`, etc.).
+
 ## Development server
 
 To start a local development server, run:

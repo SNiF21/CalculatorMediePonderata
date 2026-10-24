@@ -49,25 +49,29 @@ export class Calculator {
     this.grades.set(initial);
 
     // load saved from localStorage if present
-    const saved = localStorage.getItem(this.storageKey());
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved) as GradesMap;
-        // Only set keys that exist
-        const merged: GradesMap = { ...this.grades() };
-        for (const k of Object.keys(parsed)) {
-          if (k in merged) merged[k] = parsed[k];
+    if (typeof localStorage !== 'undefined') {
+      const saved = localStorage.getItem(this.storageKey());
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved) as GradesMap;
+          // Only set keys that exist
+          const merged: GradesMap = { ...this.grades() };
+          for (const k of Object.keys(parsed)) {
+            if (k in merged) merged[k] = parsed[k];
+          }
+          this.grades.set(merged);
+        } catch {
+          // ignore parse errors
         }
-        this.grades.set(merged);
-      } catch {
-        // ignore parse errors
       }
     }
 
     // persist changes to localStorage
     effect(() => {
       const snapshot = this.grades();
-      localStorage.setItem(this.storageKey(), JSON.stringify(snapshot));
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem(this.storageKey(), JSON.stringify(snapshot));
+      }
     });
   }
 
@@ -97,6 +101,8 @@ export class Calculator {
   }
 
   protected saveLocal() {
-    localStorage.setItem(this.storageKey(), JSON.stringify(this.grades()));
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem(this.storageKey(), JSON.stringify(this.grades()));
+    }
   }
 }

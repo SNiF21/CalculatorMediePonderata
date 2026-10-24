@@ -42,3 +42,8 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Environment & Firebase Credentials (keep real keys out of public git)
+src/environments/*
+!src/environments/environment.example.ts
+
