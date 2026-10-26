@@ -6,6 +6,7 @@ import {
   createUserWithEmailAndPassword,
   signOut,
   sendPasswordResetEmail,
+  sendEmailVerification,
   updatePassword,
   deleteUser,
   reauthenticateWithCredential,
@@ -32,9 +33,18 @@ export class AuthService {
 
   public readonly isLoggedIn = computed(() => this.user() !== null);
   public readonly studentEmail = computed(() => this.user()?.email ?? '');
+  
+  private readonly verifiedOverride = signal<boolean | null>(null);
+  public readonly isEmailVerified = computed<boolean>(() => {
+    if (this.verifiedOverride() !== null) {
+      return this.verifiedOverride()!;
+    }
+    return this.user()?.emailVerified ?? false;
+  });
 
   constructor() {
     this.initAuthListener();
+    this.initFocusListener();
   }
 
   private initAuthListener() {
@@ -44,14 +54,42 @@ export class AuthService {
     }
 
     onAuthStateChanged(this.firebase.auth, async (user) => {
+      this.verifiedOverride.set(null);
       this.user.set(user);
+
       if (user) {
+        // If cached state was not verified, do a quick server reload check
+        if (!user.emailVerified) {
+          try {
+            await user.reload();
+            this.verifiedOverride.set(user.emailVerified);
+          } catch {
+            // Ignore offline/network reload error
+          }
+        }
         await this.loadUserProfile(user.uid, user.email ?? '');
       } else {
         this.profile.set(null);
       }
       this.loading.set(false);
     });
+  }
+
+  private initFocusListener() {
+    if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+      const checkOnActive = () => {
+        if (this.isLoggedIn() && !this.isEmailVerified()) {
+          this.reloadUser().catch(() => {});
+        }
+      };
+
+      window.addEventListener('focus', checkOnActive);
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+          checkOnActive();
+        }
+      });
+    }
   }
 
   /**
@@ -89,6 +127,13 @@ export class AuthService {
     const cred = await createUserWithEmailAndPassword(this.firebase.auth, cleanEmail, pass);
     const user = cred.user;
 
+    // Send email verification to the student's institutional address
+    try {
+      await sendEmailVerification(user);
+    } catch (verErr) {
+      console.warn('Nu s-a putut trimite automat emailul de verificare:', verErr);
+    }
+
     // Create student profile in Firestore
     const studentProfile: StudentProfile = {
       uid: user.uid,
@@ -104,6 +149,46 @@ export class AuthService {
     this.profile.set(studentProfile);
 
     return user;
+  }
+
+  /**
+   * Sends an email verification to the currently logged in student.
+   */
+  public async sendVerificationEmail(): Promise<void> {
+    const currentUser = this.firebase.auth?.currentUser;
+    if (!currentUser) {
+      throw new Error('Nu există un utilizator autentificat.');
+    }
+    await sendEmailVerification(currentUser);
+  }
+
+  /**
+   * Reloads the user session to refresh the emailVerified property.
+   */
+  public async reloadUser(): Promise<User | null> {
+    const currentUser = this.firebase.auth?.currentUser;
+    if (currentUser) {
+      // 1. Force server reload of current user details
+      await currentUser.reload();
+
+      // 2. Refresh JWT token to sync updated claims
+      try {
+        await currentUser.getIdToken(true);
+      } catch {
+        // ignore token refresh network error
+      }
+
+      // 3. Directly update verifiedOverride signal
+      const verified = currentUser.emailVerified;
+      this.verifiedOverride.set(verified);
+
+      // 4. Create shallow copy preserving prototype to trigger signal inequality check
+      const freshUser = Object.assign(Object.create(Object.getPrototypeOf(currentUser)), currentUser);
+      this.user.set(freshUser);
+
+      return freshUser;
+    }
+    return null;
   }
 
   /**
@@ -131,6 +216,7 @@ export class AuthService {
   public async logout(): Promise<void> {
     if (!this.firebase.auth) return;
     await signOut(this.firebase.auth);
+    this.verifiedOverride.set(null);
     this.user.set(null);
     this.profile.set(null);
   }

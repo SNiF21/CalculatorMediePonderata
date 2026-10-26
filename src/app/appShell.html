@@ -1,60 +1,76 @@
 <!-- Top Disclaimer Banner -->
-<div class="bg-slate-950 border-b border-slate-800 text-slate-300 text-[11px] sm:text-xs py-1.5 px-4 text-center flex items-center justify-center gap-1.5 font-medium tracking-wide">
-  <span class="text-amber-400 text-xs">⚠️</span>
+<div class="bg-amber-500/10 dark:bg-amber-950/40 border-b border-amber-200/70 dark:border-amber-900/40 text-amber-900 dark:text-amber-300 text-[11px] sm:text-xs py-1.5 px-4 text-center flex items-center justify-center gap-1.5 font-medium tracking-wide transition-colors">
+  <span class="text-xs">⚠️</span>
   <span>Aplicație WEB neoficială, neafiliată ULBS</span>
 </div>
 
-<header class="bg-slate-900 border-b border-slate-800 text-white sticky top-0 z-50 shadow-md">
+<header class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 text-slate-800 dark:text-white sticky top-0 z-50 shadow-sm dark:shadow-md transition-colors">
   <div class="container mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
     
     <!-- Logo / Brand -->
     <div class="flex items-center space-x-3">
       <span class="text-2xl select-none">📐</span>
-      <a routerLink="/" class="text-lg md:text-xl font-bold tracking-tight text-white hover:text-blue-400 transition">
+      <a routerLink="/" class="text-lg md:text-xl font-bold tracking-tight text-slate-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition">
         Calculator Medie Ponderată
       </a>
     </div>
 
-    <!-- Navigation & Auth Controls -->
-    <div class="flex flex-wrap items-center gap-2 sm:gap-4 text-sm">
+    <!-- Navigation, Theme Switcher & Auth Controls -->
+    <div class="flex flex-wrap items-center gap-2 sm:gap-3 text-sm">
       
       <!-- Nav Links with Active Highlighting -->
-      <nav class="flex items-center space-x-1 sm:space-x-2">
+      <nav class="flex items-center space-x-1 sm:space-x-1.5">
         <a
           routerLink="/"
           [routerLinkActiveOptions]="{ exact: true }"
           routerLinkActive="bg-blue-600 text-white font-semibold shadow-sm"
-          class="text-slate-300 hover:text-white hover:bg-slate-800/80 transition px-3.5 py-1.5 rounded-xl text-xs sm:text-sm"
+          class="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/80 transition px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-medium"
         >
           {{ authService.isLoggedIn() ? 'Profil' : 'Acasă' }}
         </a>
 
         <a
+          *ngIf="!authService.isLoggedIn() || authService.isEmailVerified()"
           routerLink="/calculator"
           routerLinkActive="bg-blue-600 text-white font-semibold shadow-sm"
-          class="text-slate-300 hover:text-white hover:bg-slate-800/80 transition px-3.5 py-1.5 rounded-xl text-xs sm:text-sm"
+          class="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/80 transition px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-medium"
         >
           Calculator
         </a>
       </nav>
 
+      <!-- Theme Switcher Button -->
+      <button
+        type="button"
+        (click)="themeService.toggleTheme()"
+        [title]="themeService.isDark() ? 'Activează tema luminoasă' : 'Activează tema întunecată'"
+        aria-label="Comută tema"
+        class="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/60 transition cursor-pointer flex items-center justify-center"
+      >
+        <span *ngIf="!themeService.isDark()" class="text-sm select-none" aria-hidden="true">🌙</span>
+        <span *ngIf="themeService.isDark()" class="text-sm select-none" aria-hidden="true">☀️</span>
+      </button>
+
       <!-- Authenticated Student State -->
       <ng-container *ngIf="authService.isLoggedIn(); else guestState">
-        <div class="flex items-center space-x-2 sm:space-x-3 pl-2 sm:pl-3 border-l border-slate-700">
+        <div class="flex items-center space-x-2 sm:space-x-3 pl-2 sm:pl-3 border-l border-slate-200 dark:border-slate-700">
           <a
             routerLink="/"
-            class="flex items-center space-x-2 bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/70 rounded-full py-1 px-3 transition cursor-pointer"
+            class="flex items-center space-x-2 bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200/80 dark:hover:bg-slate-700/80 border border-slate-200/80 dark:border-slate-700/70 rounded-full py-1 px-3 transition cursor-pointer"
             title="Mergi la pagina de profil"
           >
-            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span class="text-xs text-slate-200 font-medium max-w-[130px] sm:max-w-[200px] truncate">
+            <span class="w-2 h-2 rounded-full" [class.bg-emerald-500]="authService.isEmailVerified()" [class.bg-amber-500]="!authService.isEmailVerified()" [class.animate-pulse]="authService.isEmailVerified()"></span>
+            <span class="text-xs text-slate-700 dark:text-slate-200 font-medium max-w-[130px] sm:max-w-[180px] truncate">
               {{ authService.studentEmail() }}
+            </span>
+            <span *ngIf="!authService.isEmailVerified()" class="text-[10px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-700 dark:text-amber-300 font-bold">
+              Neverificat
             </span>
           </a>
           <button
             type="button"
             (click)="logout()"
-            class="text-xs bg-slate-800 hover:bg-rose-900/40 text-slate-300 hover:text-rose-200 border border-slate-700 hover:border-rose-700/50 py-1.5 px-3 rounded-lg transition cursor-pointer"
+            class="text-xs bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-900/40 text-slate-600 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-200 border border-slate-200 dark:border-slate-700 hover:border-rose-300 dark:hover:border-rose-700/50 py-1.5 px-3 rounded-lg transition cursor-pointer font-medium"
           >
             Deconectare
           </button>
@@ -66,7 +82,7 @@
         <a
           routerLink="/login"
           routerLinkActive="bg-blue-700 shadow-inner"
-          class="bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs sm:text-sm px-4 py-1.5 rounded-lg shadow-sm transition flex items-center space-x-1.5 cursor-pointer"
+          class="bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs sm:text-sm px-4 py-1.5 rounded-lg shadow-sm transition flex items-center space-x-1.5 cursor-pointer ml-1"
         >
           <span>Conectare</span>
           <span class="text-[10px] text-blue-200">(@ulbsibiu.ro)</span>
@@ -78,12 +94,99 @@
 </header>
 
 <main class="container mx-auto p-4 sm:p-6 min-h-[calc(100vh-140px)]">
-  <router-outlet></router-outlet>
+
+  <!-- Email Verification Gate Barrier (Blocks app usage when logged in with unverified email) -->
+  <ng-container *ngIf="authService.isLoggedIn() && !authService.isEmailVerified(); else appContent">
+    <div class="max-w-lg mx-auto py-8 sm:py-12 px-2 animate-fadeIn">
+      <div class="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-3xl p-6 sm:p-10 shadow-2xl border border-amber-200/80 dark:border-amber-900/50 text-center space-y-6">
+        
+        <!-- Big Animated Icon -->
+        <div class="w-20 h-20 mx-auto rounded-3xl bg-amber-500/10 dark:bg-amber-500/20 text-amber-500 flex items-center justify-center text-4xl shadow-inner select-none">
+          ✉️
+        </div>
+
+        <div>
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800/80 mb-3">
+            ⚠️ Pas Obligatoriu • Confirmare Cont
+          </span>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+            Validează adresa de email
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-2 leading-relaxed">
+            Pentru a putea utiliza calculatorul de medii și a salva datele, este necesar să confirmi adresa ta instituțională:
+          </p>
+          <div class="mt-3 py-2 px-4 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 font-mono text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 break-all select-all">
+            {{ authService.studentEmail() }}
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-2xl bg-blue-50/60 dark:bg-blue-950/30 border border-blue-200/60 dark:border-blue-900/40 text-left text-xs text-slate-600 dark:text-slate-300 space-y-1.5">
+          <p class="font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-1.5">
+            <span>ℹ️</span> Ce trebuie să faci:
+          </p>
+          <ol class="list-decimal list-inside space-y-1 text-slate-600 dark:text-slate-400 pl-1">
+            <li>Deschide căsuța poștală <strong>{{ authService.studentEmail() }}</strong> (Webmail ULBS / Outlook).</li>
+            <li>Caută mesajul primit de la Firebase Authentication (verifică și dosarul Spam).</li>
+            <li>Apasă pe linkul de confirmare din mesaj.</li>
+            <li>Revino aici și apasă butonul albastru de mai jos.</li>
+          </ol>
+        </div>
+
+        <!-- Feedback Alert Messages -->
+        <div *ngIf="verificationNotice()" class="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-xs font-medium text-emerald-800 dark:text-emerald-300 text-left flex items-start gap-2.5 animate-fadeIn">
+          <span class="text-base select-none">✓</span>
+          <span class="leading-relaxed">{{ verificationNotice() }}</span>
+        </div>
+
+        <div *ngIf="verificationError()" class="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 text-xs font-medium text-rose-800 dark:text-rose-300 text-left flex items-start gap-2.5 animate-fadeIn">
+          <span class="text-base select-none">⚠️</span>
+          <span class="leading-relaxed">{{ verificationError() }}</span>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="space-y-3 pt-2">
+          <button
+            type="button"
+            (click)="checkVerification()"
+            [disabled]="isCheckingVerification()"
+            class="w-full py-3.5 px-5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-lg shadow-blue-500/25 transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+          >
+            <span *ngIf="isCheckingVerification()" class="animate-spin text-base">🔄</span>
+            <span>{{ isCheckingVerification() ? 'Se verifică statusul...' : 'Am confirmat email-ul (Verifică acum)' }}</span>
+          </button>
+
+          <div class="flex flex-col sm:flex-row items-center gap-2 pt-1">
+            <button
+              type="button"
+              (click)="resendVerification()"
+              [disabled]="isResending()"
+              class="w-full sm:flex-1 py-2.5 px-4 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-xs border border-slate-200 dark:border-slate-700 transition cursor-pointer disabled:opacity-50"
+            >
+              {{ isResending() ? 'Se retrimite...' : 'Retrimite email de confirmare' }}
+            </button>
+            <button
+              type="button"
+              (click)="logout()"
+              class="w-full sm:w-auto py-2.5 px-4 rounded-xl text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 font-semibold text-xs transition cursor-pointer"
+            >
+              Deconectare
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-template #appContent>
+    <router-outlet></router-outlet>
+  </ng-template>
+
 </main>
 
-<footer class="border-t border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 text-center text-xs text-slate-500 dark:text-slate-400 py-5 px-4">
+<footer class="border-t border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/60 backdrop-blur-sm text-center text-xs text-slate-500 dark:text-slate-400 py-5 px-4 transition-colors">
   <div class="container mx-auto flex flex-col sm:flex-row items-center justify-center gap-2">
-    <span>© {{ currentYear }} <strong>Colac Andrei-Catalin</strong>. Toate drepturile rezervate.</span>
+    <span>© {{ currentYear }} <strong class="text-slate-700 dark:text-slate-200">Colac Andrei-Catalin</strong>. Toate drepturile rezervate.</span>
     <span class="hidden sm:inline text-slate-300 dark:text-slate-700">•</span>
     <a
       href="https://github.com/SNiF21"

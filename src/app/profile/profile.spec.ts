@@ -39,4 +39,10 @@ describe('ProfileComponent', () => {
     component['closeDeleteModal']();
     expect(component['showDeleteModal']()).toBe(false);
   });
+
+  it('should initialize email verification state', () => {
+    expect(component['isSendingVerification']()).toBe(false);
+    expect(component['verificationSuccess']()).toBeNull();
+    expect(component['verificationError']()).toBeNull();
+  });
 });

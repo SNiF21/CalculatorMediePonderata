@@ -40,6 +40,42 @@ export class ProfileComponent {
   protected readonly user = this.authService.user;
   protected readonly studentEmail = computed(() => this.user()?.email ?? '');
 
+  // Email verification state
+  protected readonly isSendingVerification = signal<boolean>(false);
+  protected readonly verificationSuccess = signal<string | null>(null);
+  protected readonly verificationError = signal<string | null>(null);
+
+  protected async sendVerificationEmail(): Promise<void> {
+    this.isSendingVerification.set(true);
+    this.verificationSuccess.set(null);
+    this.verificationError.set(null);
+    try {
+      await this.authService.sendVerificationEmail();
+      this.verificationSuccess.set(
+        'Un nou link de confirmare a fost trimis către ' + this.studentEmail() + '. Verifică inbox-ul (și dosarul Spam).'
+      );
+    } catch (err: unknown) {
+      this.verificationError.set(this.authService.formatErrorMessage(err));
+    } finally {
+      this.isSendingVerification.set(false);
+    }
+  }
+
+  protected async checkEmailVerification(): Promise<void> {
+    this.verificationSuccess.set(null);
+    this.verificationError.set(null);
+    try {
+      await this.authService.reloadUser();
+      if (this.authService.isEmailVerified()) {
+        this.verificationSuccess.set('Adresa ta instituțională a fost confirmată cu succes!');
+      } else {
+        this.verificationError.set('Adresa nu a fost încă validată. Verifică căsuța poștală sau apasă „Retrimite email”.');
+      }
+    } catch (err: unknown) {
+      this.verificationError.set(this.authService.formatErrorMessage(err));
+    }
+  }
+
   // Quick setters for study context
   protected onMajorChange(major: StudyMajor): void {
     this.studyContext.setMajor(major);

@@ -8,12 +8,24 @@
         🎓
       </div>
       <div>
-        <div class="flex items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2">
           <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800 dark:text-white tracking-tight">
             Profil Student
           </h2>
           <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Cont Activ
+          </span>
+          <span
+            *ngIf="authService.isEmailVerified()"
+            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60"
+          >
+            ✓ Email Confirmat
+          </span>
+          <span
+            *ngIf="!authService.isEmailVerified()"
+            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60"
+          >
+            ⚠️ Email Neverificat
           </span>
         </div>
         <p class="text-sm font-medium text-slate-600 dark:text-slate-300 mt-1 flex items-center gap-1.5">
@@ -31,6 +43,56 @@
       <span>Deschide Calculatorul</span>
       <span>→</span>
     </a>
+  </div>
+
+  <!-- Verification Alert Box (Shown if not yet verified) -->
+  <div
+    *ngIf="!authService.isEmailVerified()"
+    class="p-4 sm:p-5 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 shadow-sm space-y-3"
+  >
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div class="flex items-start gap-3">
+        <span class="text-2xl select-none">✉️</span>
+        <div>
+          <h3 class="text-sm font-bold text-amber-900 dark:text-amber-200">
+            Confirmă adresa ta de email instituțional (@ulbsibiu.ro)
+          </h3>
+          <p class="text-xs text-amber-800 dark:text-amber-300/90 mt-1 leading-relaxed">
+            Un link de validare a fost trimis către <strong>{{ studentEmail() }}</strong> la crearea contului. Te rugăm să deschizi emailul și să accesezi linkul de confirmare.
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 self-start sm:self-auto shrink-0">
+        <button
+          type="button"
+          (click)="sendVerificationEmail()"
+          [disabled]="isSendingVerification()"
+          class="px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold shadow-sm transition disabled:opacity-50 cursor-pointer"
+        >
+          {{ isSendingVerification() ? 'Se trimite...' : 'Retrimite email' }}
+        </button>
+        <button
+          type="button"
+          (click)="checkEmailVerification()"
+          class="px-3.5 py-2 rounded-xl bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-700/70 text-amber-900 dark:text-amber-200 text-xs font-semibold hover:bg-amber-100/50 dark:hover:bg-slate-700 transition cursor-pointer"
+        >
+          Verifică statusul
+        </button>
+      </div>
+    </div>
+
+    <!-- Verification Success Message -->
+    <div *ngIf="verificationSuccess()" class="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-xs text-emerald-800 dark:text-emerald-300 flex items-center gap-2 animate-fadeIn">
+      <span>✓</span>
+      <span>{{ verificationSuccess() }}</span>
+    </div>
+
+    <!-- Verification Error Message -->
+    <div *ngIf="verificationError()" class="p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 text-xs text-rose-800 dark:text-rose-300 flex items-center gap-2 animate-fadeIn">
+      <span>⚠️</span>
+      <span>{{ verificationError() }}</span>
+    </div>
   </div>
 
   <!-- Study Context Settings Card -->

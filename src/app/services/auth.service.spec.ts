@@ -38,5 +38,27 @@ describe('AuthService', () => {
         'Înregistrarea este permisă doar cu adresa instituțională (@ulbsibiu.ro).'
       );
     });
+
+    it('should report isEmailVerified as false when logged out', () => {
+      expect(service.isEmailVerified()).toBe(false);
+    });
+
+    it('should update isEmailVerified when reloadUser is called', async () => {
+      const mockUser = {
+        email: 'student@ulbsibiu.ro',
+        emailVerified: false,
+        reload: vi.fn().mockImplementation(async function(this: any) {
+          this.emailVerified = true;
+        }),
+        getIdToken: vi.fn().mockResolvedValue('token'),
+      } as any;
+      (service as any).firebase.auth = { currentUser: mockUser };
+      service.user.set(mockUser);
+
+      await service.reloadUser();
+
+      expect(mockUser.reload).toHaveBeenCalled();
+      expect(service.isEmailVerified()).toBe(true);
+    });
   });
 });
