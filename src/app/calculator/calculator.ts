@@ -1,38 +1,98 @@
-import { Component, signal, computed, effect } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-import { CURRICULUM_DATA } from '../data/curriculumData';
-import { Subject } from '../models/studyProfile';
-
-type GradesMap = Record<string, number | null>;
+import { FormsModule } from '@angular/forms';
+import { StudyContextService } from '../services/study-context.service';
+import { AuthService } from '../services/auth.service';
+import { GradesMap, GradesService } from '../services/grades.service';
+import { SemesterRoman, StudyMajor, Subject, YearRoman } from '../models/studyProfile';
 
 @Component({
   selector: 'app-calculator',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './calculator.html',
   styleUrls: ['./calculator.css'],
 })
 export class Calculator {
-  // Hardcoded test profile for offline Stage 3
-  protected readonly profileKey = 'Calculatoare - Anul 4, Semestrul 2';
+  protected readonly studyContext = inject(StudyContextService);
+  protected readonly authService = inject(AuthService);
+  protected readonly gradesService = inject(GradesService);
 
-  protected readonly subjects = signal<Subject[]>(
-    CURRICULUM_DATA[this.profileKey] ?? []
-  );
+  public readonly subjects = computed<Subject[]>(() => this.studyContext.subjects());
+  public readonly curriculumKey = computed(() => this.studyContext.curriculumKey());
 
   protected readonly grades = signal<GradesMap>({});
 
+  /**
+   * Total credits available in the semester curriculum (typically 30).
+   */
   protected readonly totalCredits = computed(() =>
     this.subjects().reduce((s, sub) => s + (sub.credits ?? 0), 0)
   );
+
+  /**
+   * Acquired / passed credits: Only subjects where grade >= 5 award credits.
+   * If a subject is failed (< 5), its credits are NOT earned.
+   */
+  public readonly passedCredits = computed(() => {
+    let sum = 0;
+    const gMap = this.grades();
+    for (const sub of this.subjects()) {
+      const g = gMap[sub.name];
+      if (g != null && g >= 5 && g <= 10) {
+        sum += sub.credits;
+      }
+    }
+    return sum;
+  });
+
+  /**
+   * Failed credits: sum of credits for exams graded < 5.
+   */
+  public readonly failedCredits = computed(() => {
+    let sum = 0;
+    const gMap = this.grades();
+    for (const sub of this.subjects()) {
+      const g = gMap[sub.name];
+      if (g != null && g < 5) {
+        sum += sub.credits;
+      }
+    }
+    return sum;
+  });
+
+  /**
+   * Total number of subjects where a grade has been entered.
+   */
+  protected readonly gradedSubjectsCount = computed(() => {
+    const gMap = this.grades();
+    return this.subjects().filter((s) => gMap[s.name] != null).length;
+  });
+
+  /**
+   * True when all subjects have been taken/entered.
+   */
+  protected readonly allExamsTaken = computed(() => {
+    const subs = this.subjects();
+    return subs.length > 0 && this.gradedSubjectsCount() === subs.length;
+  });
+
+  /**
+   * True when all credits of the semester have been successfully passed (e.g. 30 / 30).
+   */
+  protected readonly allSubjectsPassed = computed(() => {
+    const total = this.totalCredits();
+    return total > 0 && this.passedCredits() === total;
+  });
 
   protected readonly weightedAverage = computed(() => {
     const subs = this.subjects();
     let weightedSum = 0;
     let creditsSum = 0;
+    const gMap = this.grades();
+
     for (const sub of subs) {
-      const g = this.grades()[sub.name];
+      const g = gMap[sub.name];
       if (g != null && Number.isInteger(g) && g >= 1 && g <= 10) {
         weightedSum += g * sub.credits;
         creditsSum += sub.credits;
@@ -42,49 +102,45 @@ export class Calculator {
     return Math.round((weightedSum / creditsSum) * 100) / 100;
   });
 
-  constructor() {
-    // initialize grades map
-    const initial: GradesMap = {};
-    for (const s of this.subjects()) initial[s.name] = null;
-    this.grades.set(initial);
-
-    // load saved from localStorage if present
-    if (typeof localStorage !== 'undefined') {
-      const saved = localStorage.getItem(this.storageKey());
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved) as GradesMap;
-          // Only set keys that exist
-          const merged: GradesMap = { ...this.grades() };
-          for (const k of Object.keys(parsed)) {
-            if (k in merged) merged[k] = parsed[k];
-          }
-          this.grades.set(merged);
-        } catch {
-          // ignore parse errors
-        }
-      }
+  protected readonly hasFailingGrade = computed(() => {
+    const gMap = this.grades();
+    for (const sub of this.subjects()) {
+      const g = gMap[sub.name];
+      if (g != null && g < 5) return true;
     }
+    return false;
+  });
 
-    // persist changes to localStorage
+  /**
+   * Scholarship rule:
+   * Current semester weighted average >= 8.00 and no failing grades (< 5).
+   */
+  protected readonly isScholarshipEligible = computed(() => {
+    const avg = this.weightedAverage();
+    return avg !== null && avg >= 8.00 && !this.hasFailingGrade();
+  });
+
+  constructor() {
+    // Whenever curriculum key or logged in user changes, load saved grades
     effect(() => {
-      const snapshot = this.grades();
-      if (typeof localStorage !== 'undefined') {
-        localStorage.setItem(this.storageKey(), JSON.stringify(snapshot));
-      }
+      const key = this.curriculumKey();
+      const subs = this.subjects();
+      // Track auth state to reload cloud grades upon login
+      this.authService.user();
+
+      this.gradesService.loadGrades(key, subs).then((loaded) => {
+        this.grades.set(loaded);
+      });
     });
   }
 
-  protected storageKey() {
-    return `grades:${this.profileKey}`;
-  }
-
-  protected setGrade(subjectName: string, value: string) {
+  protected setGrade(subjectName: string, value: string): void {
     const trimmed = value.trim();
     const next = { ...this.grades() };
     if (trimmed === '') {
       next[subjectName] = null;
       this.grades.set(next);
+      this.gradesService.saveGrades(this.curriculumKey(), next);
       return;
     }
     const n = Number(trimmed);
@@ -92,17 +148,23 @@ export class Calculator {
     const clamped = Math.max(1, Math.min(10, n));
     next[subjectName] = clamped;
     this.grades.set(next);
+    this.gradesService.saveGrades(this.curriculumKey(), next);
   }
 
-  protected resetGrades() {
-    const cleared: GradesMap = {};
-    for (const s of this.subjects()) cleared[s.name] = null;
+  protected async resetGrades(): Promise<void> {
+    const cleared = await this.gradesService.clearGrades(this.curriculumKey(), this.subjects());
     this.grades.set(cleared);
   }
 
-  protected saveLocal() {
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem(this.storageKey(), JSON.stringify(this.grades()));
-    }
+  protected setMajor(m: StudyMajor): void {
+    this.studyContext.setMajor(m);
+  }
+
+  protected setYear(y: YearRoman): void {
+    this.studyContext.setYear(y);
+  }
+
+  protected setSemester(s: SemesterRoman): void {
+    this.studyContext.setSemester(s);
   }
 }

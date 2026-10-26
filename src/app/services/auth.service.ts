@@ -10,6 +10,7 @@ import {
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { FirebaseService } from './firebase.service';
 import { StudentProfile } from '../models/user.model';
+import { SemesterRoman, StudyMajor, YearRoman } from '../models/studyProfile';
 import { environment } from '../../environments/environment';
 
 export const INSTITUTIONAL_DOMAIN = environment.institutionalDomain || 'ulbsibiu.ro';
@@ -60,9 +61,17 @@ export class AuthService {
   }
 
   /**
-   * Registers a new student account using institutional email and password.
+   * Registers a new student account using institutional email, password, and chosen study profile.
    */
-  public async register(email: string, pass: string): Promise<User> {
+  public async register(
+    email: string,
+    pass: string,
+    initialProfile?: {
+      major?: StudyMajor;
+      year?: YearRoman;
+      semester?: SemesterRoman;
+    }
+  ): Promise<User> {
     const cleanEmail = email.trim().toLowerCase();
 
     if (!this.isValidInstitutionalEmail(cleanEmail)) {
@@ -82,6 +91,9 @@ export class AuthService {
       email: cleanEmail,
       institutionalDomain: 'ulbsibiu.ro',
       createdAt: new Date().toISOString(),
+      major: initialProfile?.major ?? 'Calculatoare',
+      year: initialProfile?.year ?? 'I',
+      semester: initialProfile?.semester ?? 'Semestrul I',
     };
 
     await this.saveUserProfile(studentProfile);
@@ -147,7 +159,14 @@ export class AuthService {
       const snapshot = await getDoc(userRef);
 
       if (snapshot.exists()) {
-        this.profile.set(snapshot.data() as StudentProfile);
+        const data = snapshot.data() as StudentProfile;
+        // Ensure defaults if existing doc lacks fields
+        this.profile.set({
+          ...data,
+          major: data.major ?? 'Calculatoare',
+          year: data.year ?? 'I',
+          semester: data.semester ?? 'Semestrul I',
+        });
       } else {
         // Initial profile creation if doc doesn't exist yet
         const newProfile: StudentProfile = {
@@ -155,6 +174,9 @@ export class AuthService {
           email,
           institutionalDomain: 'ulbsibiu.ro',
           createdAt: new Date().toISOString(),
+          major: 'Calculatoare',
+          year: 'I',
+          semester: 'Semestrul I',
         };
         await setDoc(userRef, newProfile);
         this.profile.set(newProfile);

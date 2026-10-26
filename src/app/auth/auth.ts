@@ -3,6 +3,15 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService, INSTITUTIONAL_DOMAIN } from '../services/auth.service';
+import {
+  STUDY_MAJORS,
+  STUDY_SEMESTERS,
+  STUDY_YEARS,
+  SemesterRoman,
+  StudyMajor,
+  YearRoman,
+} from '../models/studyProfile';
+import { StudyContextService } from '../services/study-context.service';
 
 type AuthMode = 'login' | 'register' | 'forgot';
 
@@ -15,6 +24,7 @@ type AuthMode = 'login' | 'register' | 'forgot';
 })
 export class AuthComponent {
   protected readonly authService = inject(AuthService);
+  protected readonly studyContext = inject(StudyContextService);
   private readonly router = inject(Router);
 
   protected readonly mode = signal<AuthMode>('login');
@@ -22,6 +32,15 @@ export class AuthComponent {
   protected readonly password = signal<string>('');
   protected readonly confirmPassword = signal<string>('');
   protected readonly showPassword = signal<boolean>(false);
+
+  // Profile options for registration
+  protected readonly majors = STUDY_MAJORS;
+  protected readonly years = STUDY_YEARS;
+  protected readonly semesters = STUDY_SEMESTERS;
+
+  protected readonly selectedMajor = signal<StudyMajor>('Calculatoare');
+  protected readonly selectedYear = signal<YearRoman>('I');
+  protected readonly selectedSemester = signal<SemesterRoman>('Semestrul I');
 
   protected readonly isSubmitting = signal<boolean>(false);
   protected readonly errorMessage = signal<string | null>(null);
@@ -95,7 +114,17 @@ export class AuthComponent {
         await this.authService.login(emailVal, passVal);
         this.router.navigate(['/calculator']);
       } else if (this.mode() === 'register') {
-        await this.authService.register(emailVal, passVal);
+        await this.authService.register(emailVal, passVal, {
+          major: this.selectedMajor(),
+          year: this.selectedYear(),
+          semester: this.selectedSemester(),
+        });
+        // Immediately set context in the app
+        this.studyContext.setProfile(
+          this.selectedMajor(),
+          this.selectedYear(),
+          this.selectedSemester()
+        );
         this.router.navigate(['/calculator']);
       } else if (this.mode() === 'forgot') {
         await this.authService.resetPassword(emailVal);

@@ -15,7 +15,7 @@
         { "name": "Electrotehnică", "credits": 5, "type": "Examen" },
         { "name": "Analiza și Sinteza Dispozitivelor Numerice", "credits": 5, "type": "Examen" },
         { "name": "Metode Numerice", "credits": 4, "type": "Colocviu" },
-        { "name": "Tehnici de Comunicare Profesională", "credits": "3+", "type": "Colocviu" },
+        { "name": "Tehnici de Comunicare Profesională", "credits": 3, "type": "Colocviu" },
         { "name": "Limba străină 2", "credits": 2, "type": "Colocviu" },
         { "name": "Educație fizică și sport 2", "credits": 1, "type": "Colocviu" }
     ],

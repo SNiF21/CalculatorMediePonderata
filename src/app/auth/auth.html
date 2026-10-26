@@ -177,6 +177,88 @@
         />
       </div>
 
+      <!-- Registration Study Profile Details -->
+      <div *ngIf="mode() === 'register'" class="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-4">
+        
+        <!-- Specialization / Profile -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+            Specializare / Profil
+          </label>
+          <div class="relative">
+            <select
+              [ngModel]="selectedMajor()"
+              (ngModelChange)="selectedMajor.set($event)"
+              name="selectedMajor"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition appearance-none cursor-pointer"
+            >
+              <option *ngFor="let m of majors" [value]="m">{{ m }}</option>
+            </select>
+            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400 text-xs">
+              ▼
+            </div>
+          </div>
+        </div>
+
+        <!-- Year of Study (I, II, III, IV) -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+            An de studiu
+          </label>
+          <div class="grid grid-cols-4 gap-2">
+            <button
+              *ngFor="let y of years"
+              type="button"
+              (click)="selectedYear.set(y.roman)"
+              [class.bg-blue-600]="selectedYear() === y.roman"
+              [class.text-white]="selectedYear() === y.roman"
+              [class.border-blue-600]="selectedYear() === y.roman"
+              [class.shadow-sm]="selectedYear() === y.roman"
+              [class.bg-white]="selectedYear() !== y.roman"
+              [class.dark:bg-slate-800]="selectedYear() !== y.roman"
+              [class.text-slate-700]="selectedYear() !== y.roman"
+              [class.dark:text-slate-300]="selectedYear() !== y.roman"
+              [class.border-slate-200]="selectedYear() !== y.roman"
+              [class.dark:border-slate-700]="selectedYear() !== y.roman"
+              class="py-2 px-1 text-center font-semibold text-xs rounded-xl border transition-all cursor-pointer hover:border-blue-400"
+            >
+              {{ y.label }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Semester (Semestrul I, Semestrul II) -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+            Semestru activ
+          </label>
+          <div class="grid grid-cols-2 gap-2">
+            <button
+              *ngFor="let s of semesters"
+              type="button"
+              (click)="selectedSemester.set(s.roman)"
+              [class.bg-blue-600]="selectedSemester() === s.roman"
+              [class.text-white]="selectedSemester() === s.roman"
+              [class.border-blue-600]="selectedSemester() === s.roman"
+              [class.shadow-sm]="selectedSemester() === s.roman"
+              [class.bg-white]="selectedSemester() !== s.roman"
+              [class.dark:bg-slate-800]="selectedSemester() !== s.roman"
+              [class.text-slate-700]="selectedSemester() !== s.roman"
+              [class.dark:text-slate-300]="selectedSemester() !== s.roman"
+              [class.border-slate-200]="selectedSemester() !== s.roman"
+              [class.dark:border-slate-700]="selectedSemester() !== s.roman"
+              class="py-2.5 px-3 text-center font-semibold text-xs rounded-xl border transition-all cursor-pointer hover:border-blue-400 flex items-center justify-center gap-1.5"
+            >
+              <span>{{ s.roman }}</span>
+            </button>
+          </div>
+          <p class="text-[11px] text-slate-500 mt-1">
+            Poți schimba semestrul oricând din bara superioară sau din calculator.
+          </p>
+        </div>
+
+      </div>
+
       <!-- Submit Button -->
       <button
         type="submit"
