@@ -1,0 +1,42 @@
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { ProfileComponent } from './profile';
+import { AuthService } from '../services/auth.service';
+import { StudyContextService } from '../services/study-context.service';
+import { FirebaseService } from '../services/firebase.service';
+
+describe('ProfileComponent', () => {
+  let component: ProfileComponent;
+  let fixture: ComponentFixture<ProfileComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [ProfileComponent],
+      providers: [provideRouter([]), AuthService, StudyContextService, FirebaseService],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(ProfileComponent);
+    component = fixture.componentInstance;
+    await fixture.whenStable();
+  });
+
+  it('should create profile component', () => {
+    expect(component).toBeTruthy();
+  });
+
+  it('should manage password modal open and close', () => {
+    expect(component['showPasswordModal']()).toBe(false);
+    component['openPasswordModal']();
+    expect(component['showPasswordModal']()).toBe(true);
+    component['closePasswordModal']();
+    expect(component['showPasswordModal']()).toBe(false);
+  });
+
+  it('should manage delete account modal open and close', () => {
+    expect(component['showDeleteModal']()).toBe(false);
+    component['openDeleteModal']();
+    expect(component['showDeleteModal']()).toBe(true);
+    component['closeDeleteModal']();
+    expect(component['showDeleteModal']()).toBe(false);
+  });
+});

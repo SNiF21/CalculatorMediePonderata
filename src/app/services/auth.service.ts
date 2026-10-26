@@ -6,8 +6,12 @@ import {
   createUserWithEmailAndPassword,
   signOut,
   sendPasswordResetEmail,
+  updatePassword,
+  deleteUser,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
 } from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { collection, deleteDoc, doc, getDoc, getDocs, setDoc } from 'firebase/firestore';
 import { FirebaseService } from './firebase.service';
 import { StudentProfile } from '../models/user.model';
 import { SemesterRoman, StudyMajor, YearRoman } from '../models/studyProfile';
@@ -202,6 +206,77 @@ export class AuthService {
   }
 
   /**
+   * Changes the student's password after re-authenticating with their current password.
+   */
+  public async changePassword(currentPass: string, newPass: string): Promise<void> {
+    const user = this.user();
+    if (!user || !user.email) {
+      throw new Error('Utilizatorul nu este autentificat.');
+    }
+
+    if (!newPass || newPass.length < 6) {
+      throw new Error('Noua parolă trebuie să aibă minimum 6 caractere.');
+    }
+
+    // Re-authenticate user
+    const cred = EmailAuthProvider.credential(user.email, currentPass);
+    await reauthenticateWithCredential(user, cred);
+
+    // Update password
+    await updatePassword(user, newPass);
+  }
+
+  /**
+   * Deletes the student account and all associated Firestore data after password confirmation.
+   */
+  public async deleteAccount(currentPass: string): Promise<void> {
+    const user = this.user();
+    if (!user || !user.email) {
+      throw new Error('Utilizatorul nu este autentificat.');
+    }
+
+    // Re-authenticate user with current password
+    const cred = EmailAuthProvider.credential(user.email, currentPass);
+    await reauthenticateWithCredential(user, cred);
+
+    // 1. Delete all semester grades subcollection documents in Firestore
+    if (this.firebase.firestore) {
+      try {
+        const gradesCol = collection(this.firebase.firestore, 'users', user.uid, 'semesterGrades');
+        const gradesSnap = await getDocs(gradesCol);
+        for (const gradeDoc of gradesSnap.docs) {
+          await deleteDoc(gradeDoc.ref);
+        }
+
+        // 2. Delete user profile document in Firestore
+        const userRef = doc(this.firebase.firestore, 'users', user.uid);
+        await deleteDoc(userRef);
+      } catch (err) {
+        console.warn('[AuthService] Could not completely delete Firestore data:', err);
+      }
+    }
+
+    // 3. Clear local storage items for grades and study context
+    if (typeof localStorage !== 'undefined') {
+      try {
+        for (let i = localStorage.length - 1; i >= 0; i--) {
+          const key = localStorage.key(i);
+          if (key && (key.startsWith('grades:') || key.startsWith('study_context:'))) {
+            localStorage.removeItem(key);
+          }
+        }
+      } catch {
+        // ignore storage errors
+      }
+    }
+
+    // 4. Delete user in Firebase Authentication
+    await deleteUser(user);
+    this.user.set(null);
+    this.profile.set(null);
+  }
+
+  /**
    * Helper to format Firebase error codes into clear Romanian error messages.
    */
   public formatErrorMessage(error: unknown): string {
@@ -216,7 +291,7 @@ export class AuthService {
           return 'Nu există niciun cont asociat acestei adrese.';
         case 'auth/wrong-password':
         case 'auth/invalid-credential':
-          return 'Emailul sau parola sunt incorecte.';
+          return 'Parola introdusă este incorectă.';
         case 'auth/email-already-in-use':
           return 'Un cont cu această adresă instituțională există deja.';
         case 'auth/weak-password':
@@ -225,6 +300,8 @@ export class AuthService {
           return 'Eroare de rețea. Te rugăm să verifici conexiunea la internet.';
         case 'auth/too-many-requests':
           return 'Prea multe încercări consecutive. Te rugăm să încerci din nou mai târziu.';
+        case 'auth/requires-recent-login':
+          return 'Pentru această acțiune este necesară o reautentificare recentă.';
         default:
           return (error as { message?: string }).message || 'A apărut o eroare la autentificare.';
       }

@@ -1,0 +1,369 @@
+<!-- Profile View when Authenticated -->
+<div *ngIf="authService.isLoggedIn(); else guestHome" class="max-w-4xl mx-auto space-y-6 animate-fadeIn py-4">
+
+  <!-- Header Card: Student Identity -->
+  <div class="bg-white/95 dark:bg-slate-900/90 backdrop-blur-md rounded-2xl p-6 sm:p-8 shadow-md border border-slate-200/80 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+    <div class="flex items-center space-x-4">
+      <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center font-bold text-2xl shadow-md shadow-blue-500/20 select-none">
+        🎓
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800 dark:text-white tracking-tight">
+            Profil Student
+          </h2>
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Cont Activ
+          </span>
+        </div>
+        <p class="text-sm font-medium text-slate-600 dark:text-slate-300 mt-1 flex items-center gap-1.5">
+          <span>📧</span>
+          <span>{{ studentEmail() }}</span>
+        </p>
+      </div>
+    </div>
+
+    <!-- Quick Navigation to Calculator -->
+    <a
+      routerLink="/calculator"
+      class="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold px-5 py-2.5 rounded-xl shadow-md shadow-blue-500/20 transition self-start sm:self-auto cursor-pointer"
+    >
+      <span>Deschide Calculatorul</span>
+      <span>→</span>
+    </a>
+  </div>
+
+  <!-- Study Context Settings Card -->
+  <div class="bg-white/95 dark:bg-slate-900/90 backdrop-blur-md rounded-2xl p-6 sm:p-8 shadow-md border border-slate-200/80 dark:border-slate-800 space-y-6">
+    <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+      <div>
+        <h3 class="font-bold text-slate-800 dark:text-white text-base sm:text-lg flex items-center gap-2">
+          <span>📚</span> Date Studii Active
+        </h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+          Configurarea activă este sincronizată în contul tău și utilizată în toată aplicația.
+        </p>
+      </div>
+
+      <span *ngIf="profileUpdateSuccess()" class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1 animate-fadeIn">
+        ✓ Actualizat!
+      </span>
+    </div>
+
+    <div class="space-y-5">
+      <!-- Specialization / Major -->
+      <div>
+        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+          Specializare / Profil
+        </label>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+          <button
+            *ngFor="let m of studyContext.majors"
+            type="button"
+            (click)="onMajorChange(m)"
+            [class.bg-blue-600]="studyContext.major() === m"
+            [class.text-white]="studyContext.major() === m"
+            [class.border-blue-600]="studyContext.major() === m"
+            [class.shadow-sm]="studyContext.major() === m"
+            [class.bg-slate-50/70]="studyContext.major() !== m"
+            [class.dark:bg-slate-800]="studyContext.major() !== m"
+            [class.text-slate-700]="studyContext.major() !== m"
+            [class.dark:text-slate-300]="studyContext.major() !== m"
+            [class.border-slate-200]="studyContext.major() !== m"
+            [class.dark:border-slate-700]="studyContext.major() !== m"
+            class="py-3 px-3 text-center font-semibold text-xs rounded-xl border transition-all cursor-pointer hover:border-blue-400"
+          >
+            {{ m }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Year of Study (I, II, III, IV) -->
+      <div>
+        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+          An de studiu
+        </label>
+        <div class="grid grid-cols-4 gap-2.5">
+          <button
+            *ngFor="let y of studyContext.years"
+            type="button"
+            (click)="onYearChange(y.roman)"
+            [class.bg-blue-600]="studyContext.year() === y.roman"
+            [class.text-white]="studyContext.year() === y.roman"
+            [class.border-blue-600]="studyContext.year() === y.roman"
+            [class.shadow-sm]="studyContext.year() === y.roman"
+            [class.bg-slate-50/70]="studyContext.year() !== y.roman"
+            [class.dark:bg-slate-800]="studyContext.year() !== y.roman"
+            [class.text-slate-700]="studyContext.year() !== y.roman"
+            [class.dark:text-slate-300]="studyContext.year() !== y.roman"
+            [class.border-slate-200]="studyContext.year() !== y.roman"
+            [class.dark:border-slate-700]="studyContext.year() !== y.roman"
+            class="py-2.5 px-2 text-center font-semibold text-xs sm:text-sm rounded-xl border transition-all cursor-pointer hover:border-blue-400"
+          >
+            {{ y.label }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Semester (Semestrul I / Semestrul II) -->
+      <div>
+        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+          Semestru activ în aplicație
+        </label>
+        <div class="grid grid-cols-2 gap-3">
+          <button
+            *ngFor="let s of studyContext.semesters"
+            type="button"
+            (click)="onSemesterChange(s.roman)"
+            [class.bg-blue-600]="studyContext.semester() === s.roman"
+            [class.text-white]="studyContext.semester() === s.roman"
+            [class.border-blue-600]="studyContext.semester() === s.roman"
+            [class.shadow-sm]="studyContext.semester() === s.roman"
+            [class.bg-slate-50/70]="studyContext.semester() !== s.roman"
+            [class.dark:bg-slate-800]="studyContext.semester() !== s.roman"
+            [class.text-slate-700]="studyContext.semester() !== s.roman"
+            [class.dark:text-slate-300]="studyContext.semester() !== s.roman"
+            [class.border-slate-200]="studyContext.semester() !== s.roman"
+            [class.dark:border-slate-700]="studyContext.semester() !== s.roman"
+            class="py-3 px-4 text-center font-semibold text-xs sm:text-sm rounded-xl border transition-all cursor-pointer hover:border-blue-400 flex items-center justify-center gap-2"
+          >
+            <span>📅</span>
+            <span>{{ s.roman }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Account Security & Danger Zone Card -->
+  <div class="bg-white/95 dark:bg-slate-900/90 backdrop-blur-md rounded-2xl p-6 sm:p-8 shadow-md border border-slate-200/80 dark:border-slate-800 space-y-6">
+    <div class="border-b border-slate-100 dark:border-slate-800 pb-4">
+      <h3 class="font-bold text-slate-800 dark:text-white text-base sm:text-lg flex items-center gap-2">
+        <span>🔒</span> Securitate și Administrare Cont
+      </h3>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+        Schimbarea parolei, deconectarea sau eliminarea contului.
+      </p>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-3">
+      <!-- Change Password Button -->
+      <button
+        type="button"
+        (click)="openPasswordModal()"
+        class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-xs sm:text-sm px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 transition flex items-center gap-2 cursor-pointer"
+      >
+        <span>🔑</span>
+        <span>Schimbă parola</span>
+      </button>
+
+      <!-- Logout Button -->
+      <button
+        type="button"
+        (click)="onLogout()"
+        class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-xs sm:text-sm px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 transition flex items-center gap-2 cursor-pointer"
+      >
+        <span>🚪</span>
+        <span>Deconectare</span>
+      </button>
+
+      <!-- Delete Account Button (Danger Zone) -->
+      <button
+        type="button"
+        (click)="openDeleteModal()"
+        class="bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/40 text-rose-600 dark:text-rose-300 font-semibold text-xs sm:text-sm px-4 py-2.5 rounded-xl border border-rose-200 dark:border-rose-900/60 transition ml-auto flex items-center gap-2 cursor-pointer"
+      >
+        <span>🗑️</span>
+        <span>Șterge contul</span>
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Guest View (shown if user visits / when not logged in) -->
+<ng-template #guestHome>
+  <section class="max-w-3xl mx-auto text-center py-12 md:py-16 animate-fadeIn">
+    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 text-xs font-semibold mb-6 border border-blue-200 dark:border-blue-900">
+      <span>🎓</span> Facultatea de Inginerie — ULBS
+    </div>
+
+    <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-4">
+      Calculator Medie Ponderată
+    </h2>
+
+    <p class="text-base md:text-lg text-slate-600 dark:text-slate-400 max-w-xl mx-auto mb-8">
+      Calculează media semestrială pe baza creditelor ECTS și verifică eligibilitatea pentru bursă (medie ≥ 8.00, fără restanțe).
+    </p>
+
+    <div class="flex flex-wrap items-center justify-center gap-3">
+      <a
+        routerLink="/calculator"
+        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl shadow-md shadow-blue-500/20 hover:shadow-lg transition cursor-pointer"
+      >
+        Deschide Calculatorul
+      </a>
+      <a
+        routerLink="/login"
+        class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold px-6 py-3 rounded-xl border border-slate-200 dark:border-slate-700 transition cursor-pointer"
+      >
+        Autentificare Student (@ulbsibiu.ro)
+      </a>
+    </div>
+  </section>
+</ng-template>
+
+<!-- ================= MODAL: SCHIMBĂ PAROLA ================= -->
+<div *ngIf="showPasswordModal()" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fadeIn">
+  <div class="w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl p-6 sm:p-8 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4">
+    
+    <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+      <h3 class="font-bold text-lg text-slate-800 dark:text-white flex items-center gap-2">
+        <span>🔑</span> Schimbare Parolă
+      </h3>
+      <button
+        type="button"
+        (click)="closePasswordModal()"
+        class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl font-bold cursor-pointer"
+      >
+        ✕
+      </button>
+    </div>
+
+    <!-- Error Alert -->
+    <div *ngIf="passwordError()" class="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-xs text-rose-700 dark:text-rose-300">
+      {{ passwordError() }}
+    </div>
+
+    <!-- Success Alert -->
+    <div *ngIf="passwordSuccess()" class="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 text-xs text-emerald-700 dark:text-emerald-300">
+      {{ passwordSuccess() }}
+    </div>
+
+    <form (ngSubmit)="submitPasswordChange()" class="space-y-4">
+      <div>
+        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+          Parola actuală
+        </label>
+        <input
+          type="password"
+          [ngModel]="currentPassword()"
+          (ngModelChange)="currentPassword.set($event)"
+          name="currentPassword"
+          required
+          placeholder="Introdu parola actuală"
+          class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
+        />
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+          Noua parolă
+        </label>
+        <input
+          type="password"
+          [ngModel]="newPassword()"
+          (ngModelChange)="newPassword.set($event)"
+          name="newPassword"
+          required
+          minlength="6"
+          placeholder="Minimum 6 caractere"
+          class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
+        />
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+          Confirmă noua parolă
+        </label>
+        <input
+          type="password"
+          [ngModel]="confirmNewPassword()"
+          (ngModelChange)="confirmNewPassword.set($event)"
+          name="confirmNewPassword"
+          required
+          placeholder="Reintrodu noua parolă"
+          class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
+        />
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-3">
+        <button
+          type="button"
+          (click)="closePasswordModal()"
+          class="px-4 py-2 text-xs font-semibold rounded-xl text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+        >
+          Anulează
+        </button>
+        <button
+          type="submit"
+          [disabled]="isChangingPassword()"
+          class="px-5 py-2.5 text-xs font-semibold rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
+        >
+          <span *ngIf="isChangingPassword()" class="animate-spin text-sm">⏳</span>
+          <span>Salvează noua parolă</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ================= MODAL: ȘTERGE CONTUL (CONFIRMARE & PAROLĂ) ================= -->
+<div *ngIf="showDeleteModal()" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-fadeIn">
+  <div class="w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl p-6 sm:p-8 shadow-2xl border border-rose-200 dark:border-rose-900/60 space-y-4">
+    
+    <div class="flex items-center space-x-3 text-rose-600 pb-2">
+      <span class="text-3xl select-none">⚠️</span>
+      <div>
+        <h3 class="font-extrabold text-lg text-slate-900 dark:text-white">
+          Ești sigur că vrei să ștergi contul?
+        </h3>
+        <p class="text-xs text-rose-600 font-semibold">Această acțiune este ireversibilă!</p>
+      </div>
+    </div>
+
+    <div class="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200/80 dark:border-rose-900/60 text-xs text-slate-700 dark:text-rose-200 leading-relaxed">
+      Toate datele tale asociate adresei <strong class="text-slate-900 dark:text-white">{{ studentEmail() }}</strong>, inclusiv profilul de student și notele examenelor salvate în Firestore, vor fi <strong>șterse definitiv</strong>.
+    </div>
+
+    <!-- Error Alert -->
+    <div *ngIf="deleteError()" class="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 text-xs text-rose-700 dark:text-rose-300">
+      {{ deleteError() }}
+    </div>
+
+    <form (ngSubmit)="submitDeleteAccount()" class="space-y-4">
+      <div>
+        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+          Pentru confirmare, introdu parola contului:
+        </label>
+        <input
+          type="password"
+          [ngModel]="deletePassword()"
+          (ngModelChange)="deletePassword.set($event)"
+          name="deletePassword"
+          required
+          placeholder="Parola ta actuală"
+          class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition"
+        />
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-3">
+        <button
+          type="button"
+          (click)="closeDeleteModal()"
+          class="px-4 py-2 text-xs font-semibold rounded-xl text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+        >
+          Renunță
+        </button>
+        <button
+          type="submit"
+          [disabled]="isDeletingAccount()"
+          class="px-5 py-2.5 text-xs font-semibold rounded-xl bg-rose-600 hover:bg-rose-700 text-white shadow-md shadow-rose-500/20 transition disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
+        >
+          <span *ngIf="isDeletingAccount()" class="animate-spin text-sm">⏳</span>
+          <span>Șterge definitiv contul</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
