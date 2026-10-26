@@ -1,21 +1,34 @@
 <section class="max-w-4xl mx-auto space-y-6">
 
   <!-- Study Context Control Header -->
-  <div class="bg-white/95 dark:bg-slate-900/90 backdrop-blur-md rounded-2xl p-6 shadow-md border border-slate-200/80 dark:border-slate-800 space-y-5">
-    
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
+  <div class="bg-white/95 dark:bg-slate-900/90 backdrop-blur-md rounded-2xl p-6 shadow-md border border-slate-200/80 dark:border-slate-800">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
-        <h2 class="text-2xl font-extrabold text-slate-800 dark:text-white flex items-center gap-2">
+        <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800 dark:text-white flex items-center gap-2">
           <span>📐</span> Calculator Medie Ponderată
         </h2>
-        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
-          Curriculum activ: <strong class="text-slate-700 dark:text-slate-200">{{ curriculumKey() }}</strong>
-        </p>
+        
+        <!-- Active Profile Badges & Link to Profile -->
+        <div class="flex flex-wrap items-center gap-2 mt-2.5">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-semibold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60">
+            <span>🎓</span> {{ studyContext.major() }}
+          </span>
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-semibold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/60">
+            <span>📅</span> {{ studyContext.yearLabel() }}
+          </span>
+          <a
+            routerLink="/profile"
+            class="inline-flex items-center gap-1 text-[11px] font-medium text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 transition ml-1"
+            title="Modifică profilul sau anul de studiu în pagina de profil"
+          >
+            <span>⚙️ Schimbă în profil</span>
+            <span>→</span>
+          </a>
+        </div>
       </div>
 
       <!-- Quick Semester Toggle in Calculator -->
-      <div class="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-xl border border-slate-200 dark:border-slate-700">
-        <span class="text-xs font-semibold px-2 text-slate-500 dark:text-slate-400">Semestru:</span>
+      <div class="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-xl border border-slate-200 dark:border-slate-700 self-start sm:self-auto shrink-0">
         <button
           type="button"
           *ngFor="let s of studyContext.semesters"
@@ -31,58 +44,6 @@
         </button>
       </div>
     </div>
-
-    <!-- Major and Year Selectors -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      
-      <!-- Specialization Selector -->
-      <div>
-        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">
-          Specializare / Profil
-        </label>
-        <div class="relative">
-          <select
-            [ngModel]="studyContext.major()"
-            (ngModelChange)="setMajor($event)"
-            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition appearance-none cursor-pointer"
-          >
-            <option *ngFor="let m of studyContext.majors" [value]="m" class="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">{{ m }}</option>
-          </select>
-          <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400 text-xs">
-            ▼
-          </div>
-        </div>
-      </div>
-
-      <!-- Year Selector -->
-      <div>
-        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">
-          An de studiu
-        </label>
-        <div class="grid grid-cols-4 gap-2">
-          <button
-            *ngFor="let y of studyContext.years"
-            type="button"
-            (click)="setYear(y.roman)"
-            [class.bg-blue-600]="studyContext.year() === y.roman"
-            [class.text-white]="studyContext.year() === y.roman"
-            [class.border-blue-600]="studyContext.year() === y.roman"
-            [class.shadow-sm]="studyContext.year() === y.roman"
-            [class.bg-slate-50/50]="studyContext.year() !== y.roman"
-            [class.dark:bg-slate-800]="studyContext.year() !== y.roman"
-            [class.text-slate-700]="studyContext.year() !== y.roman"
-            [class.dark:text-slate-300]="studyContext.year() !== y.roman"
-            [class.border-slate-200]="studyContext.year() !== y.roman"
-            [class.dark:border-slate-700]="studyContext.year() !== y.roman"
-            class="py-2.5 px-2 text-center font-semibold text-xs rounded-xl border transition-all cursor-pointer hover:border-blue-400"
-          >
-            {{ y.label }}
-          </button>
-        </div>
-      </div>
-
-    </div>
-
   </div>
 
   <!-- Subjects Grade Grid -->
@@ -164,26 +125,71 @@
       </div>
     </div>
 
-    <!-- Actions and Sync Status -->
+    <!-- Actions, Save Button and Sync Status -->
     <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-      <button
-        type="button"
-        (click)="resetGrades()"
-        class="text-xs text-rose-600 dark:text-rose-400 hover:text-rose-700 font-medium px-3 py-1.5 rounded-lg border border-rose-200 dark:border-rose-900/50 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition cursor-pointer self-start sm:self-auto"
-      >
-        Resetează notele semestrului
-      </button>
+      <div class="flex items-center gap-2">
+        <!-- Save Grades Button (When logged in) -->
+        <ng-container *ngIf="authService.isLoggedIn()">
+          <button
+            type="button"
+            (click)="saveGradesToCloud()"
+            [disabled]="isSaving()"
+            [class.bg-blue-600]="hasUnsavedChanges()"
+            [class.hover:bg-blue-700]="hasUnsavedChanges()"
+            [class.text-white]="hasUnsavedChanges()"
+            [class.shadow-md]="hasUnsavedChanges()"
+            [class.shadow-blue-500/25]="hasUnsavedChanges()"
+            [class.bg-slate-100]="!hasUnsavedChanges()"
+            [class.dark:bg-slate-800]="!hasUnsavedChanges()"
+            [class.text-slate-700]="!hasUnsavedChanges()"
+            [class.dark:text-slate-300]="!hasUnsavedChanges()"
+            [class.border]="!hasUnsavedChanges()"
+            [class.border-slate-200]="!hasUnsavedChanges()"
+            [class.dark:border-slate-700]="!hasUnsavedChanges()"
+            class="text-xs font-semibold px-4 py-2 rounded-xl transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+          >
+            <span *ngIf="isSaving()" class="animate-spin text-sm">🔄</span>
+            <span *ngIf="!isSaving()">💾</span>
+            <span>{{ isSaving() ? 'Se salvează...' : 'Salvează notele' }}</span>
+            <span *ngIf="hasUnsavedChanges()" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse ml-0.5" title="Modificări nesalvate"></span>
+          </button>
+        </ng-container>
+
+        <!-- Reset Button -->
+        <button
+          type="button"
+          (click)="resetGrades()"
+          class="text-xs text-rose-600 dark:text-rose-400 hover:text-rose-700 font-medium px-3 py-2 rounded-xl border border-rose-200 dark:border-rose-900/50 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition cursor-pointer"
+        >
+          Resetează notele
+        </button>
+      </div>
 
       <!-- Cloud / Local Status -->
-      <div class="text-xs text-slate-500 flex items-center gap-1.5">
+      <div class="text-xs text-slate-500 flex flex-wrap items-center gap-2">
         <ng-container *ngIf="authService.isLoggedIn(); else guestNotice">
-          <span *ngIf="gradesService.isSyncing()" class="text-blue-500 font-medium flex items-center gap-1">
-            <span class="animate-spin text-sm">🔄</span> Se sincronizează în cloud...
+          <!-- Unsaved changes warning -->
+          <span *ngIf="hasUnsavedChanges()" class="text-amber-600 dark:text-amber-400 font-medium flex items-center gap-1">
+            <span>⚠️</span> Ai modificări nesalvate în cloud
           </span>
-          <span *ngIf="!gradesService.isSyncing()" class="text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
-            <span>☁️</span> Note salvate în Firebase
+
+          <!-- Success message -->
+          <span *ngIf="saveSuccess()" class="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1 animate-fadeIn">
+            <span>✓</span> {{ saveSuccess() }}
+          </span>
+
+          <!-- Error message -->
+          <span *ngIf="saveError()" class="text-rose-600 dark:text-rose-400 font-medium flex items-center gap-1 animate-fadeIn">
+            <span>✗</span> {{ saveError() }}
+          </span>
+
+          <!-- Idle synced state -->
+          <span *ngIf="!hasUnsavedChanges() && !saveSuccess() && !saveError()" class="text-slate-500 dark:text-slate-400 flex items-center gap-1">
+            <span>☁️</span> Note sincronizate
+            <span *ngIf="gradesService.lastSyncedAt()" class="opacity-80">({{ gradesService.lastSyncedAt() }})</span>
           </span>
         </ng-container>
+
         <ng-template #guestNotice>
           <span class="text-slate-400">
             💾 Salvat local în browser •

@@ -1,15 +1,16 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { StudyContextService } from '../services/study-context.service';
 import { AuthService } from '../services/auth.service';
 import { GradesMap, GradesService } from '../services/grades.service';
-import { SemesterRoman, StudyMajor, Subject, YearRoman } from '../models/studyProfile';
+import { SemesterRoman, Subject } from '../models/studyProfile';
 
 @Component({
   selector: 'app-calculator',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './calculator.html',
   styleUrls: ['./calculator.css'],
 })
@@ -120,6 +121,12 @@ export class Calculator {
     return avg !== null && avg >= 8.00 && !this.hasFailingGrade();
   });
 
+  // Save state
+  protected readonly hasUnsavedChanges = signal<boolean>(false);
+  protected readonly isSaving = signal<boolean>(false);
+  protected readonly saveSuccess = signal<string | null>(null);
+  protected readonly saveError = signal<string | null>(null);
+
   constructor() {
     // Whenever curriculum key or logged in user changes, load saved grades
     effect(() => {
@@ -130,6 +137,9 @@ export class Calculator {
 
       this.gradesService.loadGrades(key, subs).then((loaded) => {
         this.grades.set(loaded);
+        this.hasUnsavedChanges.set(false);
+        this.saveSuccess.set(null);
+        this.saveError.set(null);
       });
     });
   }
@@ -140,7 +150,9 @@ export class Calculator {
     if (trimmed === '') {
       next[subjectName] = null;
       this.grades.set(next);
-      this.gradesService.saveGrades(this.curriculumKey(), next);
+      this.gradesService.saveGradesLocally(this.curriculumKey(), next);
+      this.hasUnsavedChanges.set(true);
+      this.saveSuccess.set(null);
       return;
     }
     const n = Number(trimmed);
@@ -148,20 +160,37 @@ export class Calculator {
     const clamped = Math.max(1, Math.min(10, n));
     next[subjectName] = clamped;
     this.grades.set(next);
-    this.gradesService.saveGrades(this.curriculumKey(), next);
+    this.gradesService.saveGradesLocally(this.curriculumKey(), next);
+    this.hasUnsavedChanges.set(true);
+    this.saveSuccess.set(null);
+  }
+
+  protected async saveGradesToCloud(): Promise<void> {
+    this.isSaving.set(true);
+    this.saveSuccess.set(null);
+    this.saveError.set(null);
+    try {
+      await this.gradesService.saveGradesToCloud(this.curriculumKey(), this.grades());
+      this.hasUnsavedChanges.set(false);
+      this.saveSuccess.set('Notele au fost salvate cu succes în contul tău!');
+      setTimeout(() => {
+        this.saveSuccess.set(null);
+      }, 4000);
+    } catch (err) {
+      this.saveError.set('Nu s-au putut salva notele în cloud. Verifică conexiunea.');
+    } finally {
+      this.isSaving.set(false);
+    }
   }
 
   protected async resetGrades(): Promise<void> {
     const cleared = await this.gradesService.clearGrades(this.curriculumKey(), this.subjects());
     this.grades.set(cleared);
-  }
-
-  protected setMajor(m: StudyMajor): void {
-    this.studyContext.setMajor(m);
-  }
-
-  protected setYear(y: YearRoman): void {
-    this.studyContext.setYear(y);
+    this.hasUnsavedChanges.set(false);
+    this.saveSuccess.set('Notele semestrului au fost resetate.');
+    setTimeout(() => {
+      this.saveSuccess.set(null);
+    }, 3000);
   }
 
   protected setSemester(s: SemesterRoman): void {

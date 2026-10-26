@@ -39,4 +39,29 @@ describe('StudyContextService', () => {
     expect(service.curriculumKey()).toBe('Tehnologia Informației - Anul 2, Semestrul 1');
     expect(service.subjects().length).toBeGreaterThan(0);
   });
+
+  it('should initialize with Facultatea de Inginerie and departamentul CIE', () => {
+    expect(service.faculty()).toBe('Facultatea de Inginerie');
+    expect(service.department()).toBe('CIE');
+    expect(service.faculties.length).toBeGreaterThanOrEqual(1);
+    expect(service.availableDepartments().length).toBeGreaterThanOrEqual(1);
+    expect(service.availableDepartments()[0].shortName).toBe('CIE');
+    expect(service.availableMajors()).toContain('Calculatoare');
+  });
+
+  it('should support updating faculty and department with setProfile', () => {
+    service.setProfile(
+      'Ingineria Sistemelor Multimedia',
+      'III',
+      'Semestrul II',
+      'Facultatea de Inginerie',
+      'CIE'
+    );
+
+    expect(service.faculty()).toBe('Facultatea de Inginerie');
+    expect(service.department()).toBe('CIE');
+    expect(service.major()).toBe('Ingineria Sistemelor Multimedia');
+    expect(service.year()).toBe('III');
+    expect(service.semester()).toBe('Semestrul II');
+  });
 });

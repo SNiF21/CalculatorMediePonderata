@@ -113,26 +113,91 @@
     </div>
 
     <div class="space-y-5">
+      <!-- Faculty Selection -->
+      <div>
+        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-1.5">
+          <span>🏛️</span>
+          <span>Facultate</span>
+        </label>
+        <div class="grid grid-cols-1 gap-2.5">
+          <button
+            *ngFor="let f of studyContext.faculties"
+            type="button"
+            (click)="onFacultySelect(f.name)"
+            [class.bg-blue-600]="selectedFaculty() === f.name"
+            [class.text-white]="selectedFaculty() === f.name"
+            [class.border-blue-600]="selectedFaculty() === f.name"
+            [class.shadow-sm]="selectedFaculty() === f.name"
+            [class.bg-slate-50/70]="selectedFaculty() !== f.name"
+            [class.dark:bg-slate-800]="selectedFaculty() !== f.name"
+            [class.text-slate-700]="selectedFaculty() !== f.name"
+            [class.dark:text-slate-300]="selectedFaculty() !== f.name"
+            [class.border-slate-200]="selectedFaculty() !== f.name"
+            [class.dark:border-slate-700]="selectedFaculty() !== f.name"
+            class="py-3 px-3.5 text-left font-semibold text-xs sm:text-sm rounded-xl border transition-all cursor-pointer hover:border-blue-400 flex items-center gap-3"
+          >
+            <span class="text-xl">🏛️</span>
+            <div>
+              <div class="font-bold">{{ f.name }}</div>
+              <div class="text-[11px] opacity-80 font-normal">Universitatea „Lucian Blaga” din Sibiu</div>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Department Selection -->
+      <div>
+        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-1.5">
+          <span>🏢</span>
+          <span>Departament</span>
+        </label>
+        <div class="grid grid-cols-1 gap-2.5">
+          <button
+            *ngFor="let d of availableDepartments()"
+            type="button"
+            (click)="onDepartmentSelect(d.shortName)"
+            [class.bg-blue-600]="selectedDepartment() === d.shortName || selectedDepartment() === d.name"
+            [class.text-white]="selectedDepartment() === d.shortName || selectedDepartment() === d.name"
+            [class.border-blue-600]="selectedDepartment() === d.shortName || selectedDepartment() === d.name"
+            [class.shadow-sm]="selectedDepartment() === d.shortName || selectedDepartment() === d.name"
+            [class.bg-slate-50/70]="selectedDepartment() !== d.shortName && selectedDepartment() !== d.name"
+            [class.dark:bg-slate-800]="selectedDepartment() !== d.shortName && selectedDepartment() !== d.name"
+            [class.text-slate-700]="selectedDepartment() !== d.shortName && selectedDepartment() !== d.name"
+            [class.dark:text-slate-300]="selectedDepartment() !== d.shortName && selectedDepartment() !== d.name"
+            [class.border-slate-200]="selectedDepartment() !== d.shortName && selectedDepartment() !== d.name"
+            [class.dark:border-slate-700]="selectedDepartment() !== d.shortName && selectedDepartment() !== d.name"
+            class="py-3 px-3.5 text-left font-semibold text-xs sm:text-sm rounded-xl border transition-all cursor-pointer hover:border-blue-400 flex items-center gap-3"
+          >
+            <span class="text-xl">🏢</span>
+            <div>
+              <div class="font-bold">{{ d.name }}</div>
+              <div class="text-[11px] opacity-80 font-normal">Departament acreditat ULBS ({{ d.shortName }})</div>
+            </div>
+          </button>
+        </div>
+      </div>
+
       <!-- Specialization / Major -->
       <div>
-        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
-          Specializare / Profil
+        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-1.5">
+          <span>🎓</span>
+          <span>Specializare / Program de studiu</span>
         </label>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
           <button
-            *ngFor="let m of studyContext.majors"
+            *ngFor="let m of availableMajors()"
             type="button"
-            (click)="onMajorChange(m)"
-            [class.bg-blue-600]="studyContext.major() === m"
-            [class.text-white]="studyContext.major() === m"
-            [class.border-blue-600]="studyContext.major() === m"
-            [class.shadow-sm]="studyContext.major() === m"
-            [class.bg-slate-50/70]="studyContext.major() !== m"
-            [class.dark:bg-slate-800]="studyContext.major() !== m"
-            [class.text-slate-700]="studyContext.major() !== m"
-            [class.dark:text-slate-300]="studyContext.major() !== m"
-            [class.border-slate-200]="studyContext.major() !== m"
-            [class.dark:border-slate-700]="studyContext.major() !== m"
+            (click)="onMajorSelect(m)"
+            [class.bg-blue-600]="selectedMajor() === m"
+            [class.text-white]="selectedMajor() === m"
+            [class.border-blue-600]="selectedMajor() === m"
+            [class.shadow-sm]="selectedMajor() === m"
+            [class.bg-slate-50/70]="selectedMajor() !== m"
+            [class.dark:bg-slate-800]="selectedMajor() !== m"
+            [class.text-slate-700]="selectedMajor() !== m"
+            [class.dark:text-slate-300]="selectedMajor() !== m"
+            [class.border-slate-200]="selectedMajor() !== m"
+            [class.dark:border-slate-700]="selectedMajor() !== m"
             class="py-3 px-3 text-center font-semibold text-xs rounded-xl border transition-all cursor-pointer hover:border-blue-400"
           >
             {{ m }}
@@ -149,17 +214,17 @@
           <button
             *ngFor="let y of studyContext.years"
             type="button"
-            (click)="onYearChange(y.roman)"
-            [class.bg-blue-600]="studyContext.year() === y.roman"
-            [class.text-white]="studyContext.year() === y.roman"
-            [class.border-blue-600]="studyContext.year() === y.roman"
-            [class.shadow-sm]="studyContext.year() === y.roman"
-            [class.bg-slate-50/70]="studyContext.year() !== y.roman"
-            [class.dark:bg-slate-800]="studyContext.year() !== y.roman"
-            [class.text-slate-700]="studyContext.year() !== y.roman"
-            [class.dark:text-slate-300]="studyContext.year() !== y.roman"
-            [class.border-slate-200]="studyContext.year() !== y.roman"
-            [class.dark:border-slate-700]="studyContext.year() !== y.roman"
+            (click)="onYearSelect(y.roman)"
+            [class.bg-blue-600]="selectedYear() === y.roman"
+            [class.text-white]="selectedYear() === y.roman"
+            [class.border-blue-600]="selectedYear() === y.roman"
+            [class.shadow-sm]="selectedYear() === y.roman"
+            [class.bg-slate-50/70]="selectedYear() !== y.roman"
+            [class.dark:bg-slate-800]="selectedYear() !== y.roman"
+            [class.text-slate-700]="selectedYear() !== y.roman"
+            [class.dark:text-slate-300]="selectedYear() !== y.roman"
+            [class.border-slate-200]="selectedYear() !== y.roman"
+            [class.dark:border-slate-700]="selectedYear() !== y.roman"
             class="py-2.5 px-2 text-center font-semibold text-xs sm:text-sm rounded-xl border transition-all cursor-pointer hover:border-blue-400"
           >
             {{ y.label }}
@@ -176,22 +241,72 @@
           <button
             *ngFor="let s of studyContext.semesters"
             type="button"
-            (click)="onSemesterChange(s.roman)"
-            [class.bg-blue-600]="studyContext.semester() === s.roman"
-            [class.text-white]="studyContext.semester() === s.roman"
-            [class.border-blue-600]="studyContext.semester() === s.roman"
-            [class.shadow-sm]="studyContext.semester() === s.roman"
-            [class.bg-slate-50/70]="studyContext.semester() !== s.roman"
-            [class.dark:bg-slate-800]="studyContext.semester() !== s.roman"
-            [class.text-slate-700]="studyContext.semester() !== s.roman"
-            [class.dark:text-slate-300]="studyContext.semester() !== s.roman"
-            [class.border-slate-200]="studyContext.semester() !== s.roman"
-            [class.dark:border-slate-700]="studyContext.semester() !== s.roman"
+            (click)="onSemesterSelect(s.roman)"
+            [class.bg-blue-600]="selectedSemester() === s.roman"
+            [class.text-white]="selectedSemester() === s.roman"
+            [class.border-blue-600]="selectedSemester() === s.roman"
+            [class.shadow-sm]="selectedSemester() === s.roman"
+            [class.bg-slate-50/70]="selectedSemester() !== s.roman"
+            [class.dark:bg-slate-800]="selectedSemester() !== s.roman"
+            [class.text-slate-700]="selectedSemester() !== s.roman"
+            [class.dark:text-slate-300]="selectedSemester() !== s.roman"
+            [class.border-slate-200]="selectedSemester() !== s.roman"
+            [class.dark:border-slate-700]="selectedSemester() !== s.roman"
             class="py-3 px-4 text-center font-semibold text-xs sm:text-sm rounded-xl border transition-all cursor-pointer hover:border-blue-400 flex items-center justify-center gap-2"
           >
             <span>📅</span>
             <span>{{ s.roman }}</span>
           </button>
+        </div>
+      </div>
+
+      <!-- Save Profile Button & Status -->
+      <div class="pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            (click)="saveProfile()"
+            [disabled]="isSavingProfile() || !hasProfileChanges()"
+            [class.bg-blue-600]="hasProfileChanges()"
+            [class.hover:bg-blue-700]="hasProfileChanges()"
+            [class.text-white]="hasProfileChanges()"
+            [class.shadow-md]="hasProfileChanges()"
+            [class.shadow-blue-500/25]="hasProfileChanges()"
+            [class.bg-slate-100]="!hasProfileChanges()"
+            [class.dark:bg-slate-800]="!hasProfileChanges()"
+            [class.text-slate-400]="!hasProfileChanges()"
+            [class.dark:text-slate-500]="!hasProfileChanges()"
+            [class.border]="!hasProfileChanges()"
+            [class.border-slate-200]="!hasProfileChanges()"
+            [class.dark:border-slate-700]="!hasProfileChanges()"
+            class="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <span *ngIf="isSavingProfile()" class="animate-spin text-sm">🔄</span>
+            <span *ngIf="!isSavingProfile()">💾</span>
+            <span>{{ isSavingProfile() ? 'Se salvează profilul...' : 'Salvează datele de studiu' }}</span>
+            <span *ngIf="hasProfileChanges()" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse" title="Modificări nesalvate"></span>
+          </button>
+
+          <button
+            *ngIf="hasProfileChanges()"
+            type="button"
+            (click)="resetProfileSelection()"
+            class="px-3 py-2 rounded-xl text-xs font-semibold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+          >
+            Anulează
+          </button>
+        </div>
+
+        <div>
+          <span *ngIf="hasProfileChanges()" class="text-xs text-amber-600 dark:text-amber-400 font-medium flex items-center gap-1">
+            <span>⚠️</span> Ai modificări nesalvate ale profilului
+          </span>
+          <span *ngIf="profileUpdateSuccess()" class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1 animate-fadeIn">
+            <span>✓</span> Datele de studii au fost salvate cu succes!
+          </span>
+          <span *ngIf="!hasProfileChanges() && !profileUpdateSuccess()" class="text-xs text-slate-400">
+            Profil activ sincronizat cu Firebase
+          </span>
         </div>
       </div>
     </div>

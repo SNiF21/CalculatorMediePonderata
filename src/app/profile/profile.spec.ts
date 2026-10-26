@@ -45,4 +45,22 @@ describe('ProfileComponent', () => {
     expect(component['verificationSuccess']()).toBeNull();
     expect(component['verificationError']()).toBeNull();
   });
+
+  it('should track profile changes and save them', async () => {
+    expect(component['hasProfileChanges']()).toBe(false);
+    component['onMajorSelect']('Tehnologia Informației');
+    expect(component['hasProfileChanges']()).toBe(true);
+
+    await component['saveProfile']();
+    expect(component['hasProfileChanges']()).toBe(false);
+  });
+
+  it('should manage faculty and department selections in profile', () => {
+    expect(component['selectedFaculty']()).toBe('Facultatea de Inginerie');
+    expect(component['selectedDepartment']()).toBe('CIE');
+    expect(component['availableDepartments']().length).toBeGreaterThan(0);
+
+    component['onDepartmentSelect']('CIE');
+    expect(component['selectedDepartment']()).toBe('CIE');
+  });
 });

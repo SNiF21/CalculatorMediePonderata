@@ -87,4 +87,15 @@ describe('Calculator', () => {
     // If total was 30 and 2 credits failed, passedCredits is 28, NOT 30!
     expect(component.passedCredits()).toBe(30 - twoCreditSub.credits);
   });
+
+  it('should track unsaved changes when grade is changed and clear after saving', async () => {
+    const subs = component.subjects();
+    expect(component['hasUnsavedChanges']()).toBe(false);
+
+    component['setGrade'](subs[0].name, '8');
+    expect(component['hasUnsavedChanges']()).toBe(true);
+
+    await component['saveGradesToCloud']();
+    expect(component['hasUnsavedChanges']()).toBe(false);
+  });
 });

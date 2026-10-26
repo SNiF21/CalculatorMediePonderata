@@ -1,6 +1,6 @@
-import calculatoareCurriculum from './json/calculatoareCurriculum.json';
-import tiCurriculum from './json/tiCurriculum.json';
-import ismCurriculum from './json/ismCurriculum.json';
+import calculatoareCurriculum from './facultati/inginerie/cie/calculatoareCurriculum.json';
+import tiCurriculum from './facultati/inginerie/cie/tiCurriculum.json';
+import ismCurriculum from './facultati/inginerie/cie/ismCurriculum.json';
 import { Subject } from '../models/studyProfile';
 
 export const CURRICULUM_DATA: Record<string, Subject[]> = {

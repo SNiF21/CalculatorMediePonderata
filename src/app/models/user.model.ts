@@ -5,6 +5,8 @@ export interface StudentProfile {
   email: string;
   institutionalDomain: 'ulbsibiu.ro';
   createdAt: string;
+  faculty?: string;
+  department?: string;
   major: StudyMajor;
   year: YearRoman;
   semester: SemesterRoman;

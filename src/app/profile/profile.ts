@@ -1,10 +1,16 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { StudyContextService } from '../services/study-context.service';
-import { SemesterRoman, StudyMajor, YearRoman } from '../models/studyProfile';
+import {
+  SemesterRoman,
+  StudyMajor,
+  YearRoman,
+  getDepartmentsForFaculty,
+  getMajorsForDepartment,
+} from '../models/studyProfile';
 
 @Component({
   selector: 'app-profile',
@@ -17,6 +23,23 @@ export class ProfileComponent {
   protected readonly authService = inject(AuthService);
   protected readonly studyContext = inject(StudyContextService);
   private readonly router = inject(Router);
+
+  constructor() {
+    effect(() => {
+      const f = this.studyContext.faculty();
+      const d = this.studyContext.department();
+      const m = this.studyContext.major();
+      const y = this.studyContext.year();
+      const s = this.studyContext.semester();
+      if (!this.hasProfileChanges()) {
+        this.selectedFaculty.set(f);
+        this.selectedDepartment.set(d);
+        this.selectedMajor.set(m);
+        this.selectedYear.set(y);
+        this.selectedSemester.set(s);
+      }
+    });
+  }
 
   // Password change modal state
   protected readonly showPasswordModal = signal<boolean>(false);
@@ -76,25 +99,87 @@ export class ProfileComponent {
     }
   }
 
-  // Quick setters for study context
-  protected onMajorChange(major: StudyMajor): void {
-    this.studyContext.setMajor(major);
-    this.flashSuccess();
+  // Study context selection signals (pending save)
+  protected readonly selectedFaculty = signal<string>(this.studyContext.faculty());
+  protected readonly selectedDepartment = signal<string>(this.studyContext.department());
+  protected readonly selectedMajor = signal<StudyMajor>(this.studyContext.major());
+  protected readonly selectedYear = signal<YearRoman>(this.studyContext.year());
+  protected readonly selectedSemester = signal<SemesterRoman>(this.studyContext.semester());
+  protected readonly isSavingProfile = signal<boolean>(false);
+
+  protected readonly availableDepartments = computed(() =>
+    getDepartmentsForFaculty(this.selectedFaculty())
+  );
+  protected readonly availableMajors = computed(() =>
+    getMajorsForDepartment(this.selectedFaculty(), this.selectedDepartment())
+  );
+
+  protected readonly hasProfileChanges = computed(() => {
+    return (
+      this.selectedFaculty() !== this.studyContext.faculty() ||
+      this.selectedDepartment() !== this.studyContext.department() ||
+      this.selectedMajor() !== this.studyContext.major() ||
+      this.selectedYear() !== this.studyContext.year() ||
+      this.selectedSemester() !== this.studyContext.semester()
+    );
+  });
+
+  protected onFacultySelect(facultyName: string): void {
+    this.selectedFaculty.set(facultyName);
+    const depts = getDepartmentsForFaculty(facultyName);
+    if (depts.length > 0 && !depts.some((d) => d.shortName === this.selectedDepartment() || d.name === this.selectedDepartment())) {
+      const firstDept = depts[0].shortName;
+      this.selectedDepartment.set(firstDept);
+      const majors = getMajorsForDepartment(facultyName, firstDept);
+      if (majors.length > 0) {
+        this.selectedMajor.set(majors[0]);
+      }
+    }
   }
 
-  protected onYearChange(year: YearRoman): void {
-    this.studyContext.setYear(year);
-    this.flashSuccess();
+  protected onDepartmentSelect(departmentShortOrName: string): void {
+    this.selectedDepartment.set(departmentShortOrName);
+    const majors = getMajorsForDepartment(this.selectedFaculty(), departmentShortOrName);
+    if (majors.length > 0 && !majors.includes(this.selectedMajor())) {
+      this.selectedMajor.set(majors[0]);
+    }
   }
 
-  protected onSemesterChange(semester: SemesterRoman): void {
-    this.studyContext.setSemester(semester);
-    this.flashSuccess();
+  protected onMajorSelect(major: StudyMajor): void {
+    this.selectedMajor.set(major);
   }
 
-  private flashSuccess(): void {
-    this.profileUpdateSuccess.set(true);
-    setTimeout(() => this.profileUpdateSuccess.set(false), 2000);
+  protected onYearSelect(year: YearRoman): void {
+    this.selectedYear.set(year);
+  }
+
+  protected onSemesterSelect(semester: SemesterRoman): void {
+    this.selectedSemester.set(semester);
+  }
+
+  protected resetProfileSelection(): void {
+    this.selectedFaculty.set(this.studyContext.faculty());
+    this.selectedDepartment.set(this.studyContext.department());
+    this.selectedMajor.set(this.studyContext.major());
+    this.selectedYear.set(this.studyContext.year());
+    this.selectedSemester.set(this.studyContext.semester());
+  }
+
+  protected async saveProfile(): Promise<void> {
+    this.isSavingProfile.set(true);
+    try {
+      this.studyContext.setProfile(
+        this.selectedMajor(),
+        this.selectedYear(),
+        this.selectedSemester(),
+        this.selectedFaculty(),
+        this.selectedDepartment()
+      );
+      this.profileUpdateSuccess.set(true);
+      setTimeout(() => this.profileUpdateSuccess.set(false), 3000);
+    } finally {
+      this.isSavingProfile.set(false);
+    }
   }
 
   // --- Password Change Methods ---

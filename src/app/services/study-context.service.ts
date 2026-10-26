@@ -1,5 +1,8 @@
 import { Injectable, computed, effect, inject, signal } from '@angular/core';
 import {
+  DEFAULT_DEPARTMENT,
+  DEFAULT_FACULTY,
+  FACULTIES,
   STUDY_MAJORS,
   STUDY_SEMESTERS,
   STUDY_YEARS,
@@ -8,11 +11,16 @@ import {
   Subject,
   YearRoman,
   buildCurriculumKey,
+  getDepartmentsForFaculty,
+  getMajorsForDepartment,
 } from '../models/studyProfile';
 import { CURRICULUM_DATA } from '../data/curriculumData';
 import { AuthService } from './auth.service';
+import { StudentProfile } from '../models/user.model';
 
 const STORAGE_KEYS = {
+  FACULTY: 'study_context:faculty',
+  DEPARTMENT: 'study_context:department',
   MAJOR: 'study_context:major',
   YEAR: 'study_context:year',
   SEMESTER: 'study_context:semester',
@@ -24,13 +32,24 @@ const STORAGE_KEYS = {
 export class StudyContextService {
   private readonly authService = inject(AuthService);
 
+  public readonly faculties = FACULTIES;
   public readonly majors = STUDY_MAJORS;
   public readonly years = STUDY_YEARS;
   public readonly semesters = STUDY_SEMESTERS;
 
+  public readonly faculty = signal<string>(DEFAULT_FACULTY);
+  public readonly department = signal<string>(DEFAULT_DEPARTMENT);
   public readonly major = signal<StudyMajor>('Calculatoare');
   public readonly year = signal<YearRoman>('I');
   public readonly semester = signal<SemesterRoman>('Semestrul I');
+
+  public readonly availableDepartments = computed(() =>
+    getDepartmentsForFaculty(this.faculty())
+  );
+
+  public readonly availableMajors = computed(() =>
+    getMajorsForDepartment(this.faculty(), this.department())
+  );
 
   public readonly curriculumKey = computed(() =>
     buildCurriculumKey(this.major(), this.year(), this.semester())
@@ -59,6 +78,16 @@ export class StudyContextService {
     if (typeof localStorage === 'undefined') return;
 
     try {
+      const savedFaculty = localStorage.getItem(STORAGE_KEYS.FACULTY);
+      if (savedFaculty) {
+        this.faculty.set(savedFaculty);
+      }
+
+      const savedDept = localStorage.getItem(STORAGE_KEYS.DEPARTMENT);
+      if (savedDept) {
+        this.department.set(savedDept);
+      }
+
       const savedMajor = localStorage.getItem(STORAGE_KEYS.MAJOR) as StudyMajor | null;
       if (savedMajor && this.majors.includes(savedMajor)) {
         this.major.set(savedMajor);
@@ -84,6 +113,12 @@ export class StudyContextService {
       () => {
         const profile = this.authService.profile();
         if (profile) {
+          if (profile.faculty) {
+            this.faculty.set(profile.faculty);
+          }
+          if (profile.department) {
+            this.department.set(profile.department);
+          }
           if (profile.major && this.majors.includes(profile.major)) {
             this.major.set(profile.major);
           }
@@ -96,6 +131,32 @@ export class StudyContextService {
         }
       }
     );
+  }
+
+  public setFaculty(f: string): void {
+    this.faculty.set(f);
+    this.saveToStorage(STORAGE_KEYS.FACULTY, f);
+    const depts = getDepartmentsForFaculty(f);
+    if (depts.length > 0 && !depts.some((d) => d.name === this.department() || d.shortName === this.department())) {
+      const newDept = depts[0].shortName;
+      this.department.set(newDept);
+      this.saveToStorage(STORAGE_KEYS.DEPARTMENT, newDept);
+      const majors = getMajorsForDepartment(f, newDept);
+      if (majors.length > 0 && !majors.includes(this.major())) {
+        this.setMajor(majors[0]);
+      }
+    }
+    this.syncToFirestore({ faculty: f, department: this.department(), major: this.major() });
+  }
+
+  public setDepartment(d: string): void {
+    this.department.set(d);
+    this.saveToStorage(STORAGE_KEYS.DEPARTMENT, d);
+    const majors = getMajorsForDepartment(this.faculty(), d);
+    if (majors.length > 0 && !majors.includes(this.major())) {
+      this.setMajor(majors[0]);
+    }
+    this.syncToFirestore({ department: d, major: this.major() });
   }
 
   public setSemester(sem: SemesterRoman): void {
@@ -116,16 +177,35 @@ export class StudyContextService {
     this.syncToFirestore({ major: m });
   }
 
-  public setProfile(major: StudyMajor, year: YearRoman, semester: SemesterRoman): void {
+  public setProfile(
+    major: StudyMajor,
+    year: YearRoman,
+    semester: SemesterRoman,
+    faculty?: string,
+    department?: string
+  ): void {
+    const fac = faculty ?? this.faculty();
+    const dept = department ?? this.department();
+
+    this.faculty.set(fac);
+    this.department.set(dept);
     this.major.set(major);
     this.year.set(year);
     this.semester.set(semester);
 
+    this.saveToStorage(STORAGE_KEYS.FACULTY, fac);
+    this.saveToStorage(STORAGE_KEYS.DEPARTMENT, dept);
     this.saveToStorage(STORAGE_KEYS.MAJOR, major);
     this.saveToStorage(STORAGE_KEYS.YEAR, year);
     this.saveToStorage(STORAGE_KEYS.SEMESTER, semester);
 
-    this.syncToFirestore({ major, year, semester });
+    this.syncToFirestore({
+      faculty: fac,
+      department: dept,
+      major,
+      year,
+      semester,
+    });
   }
 
   private saveToStorage(key: string, value: string): void {
@@ -137,7 +217,7 @@ export class StudyContextService {
     }
   }
 
-  private async syncToFirestore(updates: Partial<{ major: StudyMajor; year: YearRoman; semester: SemesterRoman }>): Promise<void> {
+  private async syncToFirestore(updates: Partial<StudentProfile>): Promise<void> {
     const user = this.authService.user();
     if (!user) return;
 

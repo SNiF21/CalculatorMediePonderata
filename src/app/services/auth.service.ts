@@ -109,6 +109,8 @@ export class AuthService {
     email: string,
     pass: string,
     initialProfile?: {
+      faculty?: string;
+      department?: string;
       major?: StudyMajor;
       year?: YearRoman;
       semester?: SemesterRoman;
@@ -140,6 +142,8 @@ export class AuthService {
       email: cleanEmail,
       institutionalDomain: 'ulbsibiu.ro',
       createdAt: new Date().toISOString(),
+      faculty: initialProfile?.faculty ?? 'Facultatea de Inginerie',
+      department: initialProfile?.department ?? 'CIE',
       major: initialProfile?.major ?? 'Calculatoare',
       year: initialProfile?.year ?? 'I',
       semester: initialProfile?.semester ?? 'Semestrul I',
@@ -253,6 +257,8 @@ export class AuthService {
         // Ensure defaults if existing doc lacks fields
         this.profile.set({
           ...data,
+          faculty: data.faculty ?? 'Facultatea de Inginerie',
+          department: data.department ?? 'CIE',
           major: data.major ?? 'Calculatoare',
           year: data.year ?? 'I',
           semester: data.semester ?? 'Semestrul I',
@@ -264,6 +270,8 @@ export class AuthService {
           email,
           institutionalDomain: 'ulbsibiu.ro',
           createdAt: new Date().toISOString(),
+          faculty: 'Facultatea de Inginerie',
+          department: 'CIE',
           major: 'Calculatoare',
           year: 'I',
           semester: 'Semestrul I',

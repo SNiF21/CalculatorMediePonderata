@@ -95,10 +95,9 @@ export class GradesService {
   }
 
   /**
-   * Saves grades to local storage immediately and queues sync to Firestore.
+   * Saves grades to local storage immediately without writing to Firestore.
    */
-  public saveGrades(curriculumKey: string, grades: GradesMap): void {
-    // 1. Instant local persistence
+  public saveGradesLocally(curriculumKey: string, grades: GradesMap): void {
     if (typeof localStorage !== 'undefined') {
       try {
         localStorage.setItem(`grades:${curriculumKey}`, JSON.stringify(grades));
@@ -106,41 +105,51 @@ export class GradesService {
         // ignore storage errors
       }
     }
+  }
 
-    // 2. Debounced Cloud sync if logged in
+  /**
+   * Default save: preserves changes locally in the browser immediately.
+   */
+  public saveGrades(curriculumKey: string, grades: GradesMap): void {
+    this.saveGradesLocally(curriculumKey, grades);
+  }
+
+  /**
+   * Explicitly syncs grades to Firestore in the cloud when user clicks the save button.
+   */
+  public async saveGradesToCloud(curriculumKey: string, grades: GradesMap): Promise<boolean> {
+    this.saveGradesLocally(curriculumKey, grades);
+
     const user = this.authService.user();
-    if (!user || !this.firebase.firestore) return;
-
-    if (this.saveTimeouts[curriculumKey]) {
-      clearTimeout(this.saveTimeouts[curriculumKey]);
+    if (!user || !this.firebase.firestore) {
+      return false;
     }
 
-    this.saveTimeouts[curriculumKey] = setTimeout(async () => {
-      if (!this.firebase.firestore) return;
-      try {
-        this.isSyncing.set(true);
-        const docRef = doc(
-          this.firebase.firestore,
-          'users',
-          user.uid,
-          'semesterGrades',
-          this.getDocId(curriculumKey)
-        );
+    try {
+      this.isSyncing.set(true);
+      const docRef = doc(
+        this.firebase.firestore,
+        'users',
+        user.uid,
+        'semesterGrades',
+        this.getDocId(curriculumKey)
+      );
 
-        const now = new Date().toISOString();
-        await setDoc(docRef, {
-          curriculumKey,
-          grades,
-          updatedAt: now,
-        });
+      const now = new Date().toISOString();
+      await setDoc(docRef, {
+        curriculumKey,
+        grades,
+        updatedAt: now,
+      });
 
-        this.lastSyncedAt.set(new Date().toLocaleTimeString());
-      } catch (err) {
-        console.error('[GradesService] Failed to sync grades to Firestore:', err);
-      } finally {
-        this.isSyncing.set(false);
-      }
-    }, 600); // 600ms debounce
+      this.lastSyncedAt.set(new Date().toLocaleTimeString());
+      return true;
+    } catch (err) {
+      console.error('[GradesService] Failed to sync grades to Firestore:', err);
+      throw err;
+    } finally {
+      this.isSyncing.set(false);
+    }
   }
 
   /**
@@ -152,7 +161,33 @@ export class GradesService {
       cleared[s.name] = null;
     }
 
-    this.saveGrades(curriculumKey, cleared);
+    this.saveGradesLocally(curriculumKey, cleared);
+
+    const user = this.authService.user();
+    if (user && this.firebase.firestore) {
+      try {
+        this.isSyncing.set(true);
+        const docRef = doc(
+          this.firebase.firestore,
+          'users',
+          user.uid,
+          'semesterGrades',
+          this.getDocId(curriculumKey)
+        );
+        const now = new Date().toISOString();
+        await setDoc(docRef, {
+          curriculumKey,
+          grades: cleared,
+          updatedAt: now,
+        });
+        this.lastSyncedAt.set(new Date().toLocaleTimeString());
+      } catch (err) {
+        console.error('[GradesService] Failed to clear grades from cloud:', err);
+      } finally {
+        this.isSyncing.set(false);
+      }
+    }
+
     return cleared;
   }
 }

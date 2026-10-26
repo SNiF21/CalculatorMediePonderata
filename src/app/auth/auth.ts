@@ -4,12 +4,17 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService, INSTITUTIONAL_DOMAIN } from '../services/auth.service';
 import {
+  DEFAULT_DEPARTMENT,
+  DEFAULT_FACULTY,
+  FACULTIES,
   STUDY_MAJORS,
   STUDY_SEMESTERS,
   STUDY_YEARS,
   SemesterRoman,
   StudyMajor,
   YearRoman,
+  getDepartmentsForFaculty,
+  getMajorsForDepartment,
 } from '../models/studyProfile';
 import { StudyContextService } from '../services/study-context.service';
 
@@ -34,13 +39,43 @@ export class AuthComponent {
   protected readonly showPassword = signal<boolean>(false);
 
   // Profile options for registration
-  protected readonly majors = STUDY_MAJORS;
+  protected readonly faculties = FACULTIES;
   protected readonly years = STUDY_YEARS;
   protected readonly semesters = STUDY_SEMESTERS;
+
+  protected readonly selectedFaculty = signal<string>(DEFAULT_FACULTY);
+  protected readonly availableDepartments = computed(() =>
+    getDepartmentsForFaculty(this.selectedFaculty())
+  );
+  protected readonly selectedDepartment = signal<string>(DEFAULT_DEPARTMENT);
+  protected readonly availableMajors = computed(() =>
+    getMajorsForDepartment(this.selectedFaculty(), this.selectedDepartment())
+  );
 
   protected readonly selectedMajor = signal<StudyMajor>('Calculatoare');
   protected readonly selectedYear = signal<YearRoman>('I');
   protected readonly selectedSemester = signal<SemesterRoman>('Semestrul I');
+
+  protected onFacultyChange(facultyName: string) {
+    this.selectedFaculty.set(facultyName);
+    const depts = getDepartmentsForFaculty(facultyName);
+    if (depts.length > 0) {
+      const firstDept = depts[0].shortName;
+      this.selectedDepartment.set(firstDept);
+      const majors = getMajorsForDepartment(facultyName, firstDept);
+      if (majors.length > 0) {
+        this.selectedMajor.set(majors[0]);
+      }
+    }
+  }
+
+  protected onDepartmentChange(departmentShortOrName: string) {
+    this.selectedDepartment.set(departmentShortOrName);
+    const majors = getMajorsForDepartment(this.selectedFaculty(), departmentShortOrName);
+    if (majors.length > 0 && !majors.includes(this.selectedMajor())) {
+      this.selectedMajor.set(majors[0]);
+    }
+  }
 
   protected readonly isSubmitting = signal<boolean>(false);
   protected readonly errorMessage = signal<string | null>(null);
@@ -115,6 +150,8 @@ export class AuthComponent {
         this.router.navigate(['/calculator']);
       } else if (this.mode() === 'register') {
         await this.authService.register(emailVal, passVal, {
+          faculty: this.selectedFaculty(),
+          department: this.selectedDepartment(),
           major: this.selectedMajor(),
           year: this.selectedYear(),
           semester: this.selectedSemester(),
@@ -123,7 +160,9 @@ export class AuthComponent {
         this.studyContext.setProfile(
           this.selectedMajor(),
           this.selectedYear(),
-          this.selectedSemester()
+          this.selectedSemester(),
+          this.selectedFaculty(),
+          this.selectedDepartment()
         );
         this.router.navigate(['/calculator']);
       } else if (this.mode() === 'forgot') {

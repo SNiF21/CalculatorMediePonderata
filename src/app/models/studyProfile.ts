@@ -15,6 +15,64 @@ export const STUDY_MAJORS: StudyMajor[] = [
   'Ingineria Sistemelor Multimedia',
 ];
 
+export interface DepartmentOption {
+  id: string;
+  name: string;
+  shortName: string;
+  majors: StudyMajor[];
+}
+
+export interface FacultyOption {
+  id: string;
+  name: string;
+  shortName: string;
+  departments: DepartmentOption[];
+}
+
+export const FACULTIES: FacultyOption[] = [
+  {
+    id: 'inginerie',
+    name: 'Facultatea de Inginerie',
+    shortName: 'Inginerie',
+    departments: [
+      {
+        id: 'cie',
+        name: 'Calculatoare și Inginerie Electrică (CIE)',
+        shortName: 'CIE',
+        majors: [
+          'Calculatoare',
+          'Tehnologia Informației',
+          'Ingineria Sistemelor Multimedia',
+        ],
+      },
+    ],
+  },
+];
+
+export const DEFAULT_FACULTY = 'Facultatea de Inginerie';
+export const DEFAULT_DEPARTMENT = 'CIE';
+
+export function getDepartmentsForFaculty(facultyName: string): DepartmentOption[] {
+  const f = FACULTIES.find(
+    (item) => item.name === facultyName || item.id === facultyName || item.shortName === facultyName
+  );
+  return f ? f.departments : (FACULTIES[0]?.departments ?? []);
+}
+
+export function getMajorsForDepartment(
+  facultyName: string,
+  departmentNameOrShort: string
+): StudyMajor[] {
+  const depts = getDepartmentsForFaculty(facultyName);
+  const d = depts.find(
+    (item) =>
+      item.name === departmentNameOrShort ||
+      item.shortName === departmentNameOrShort ||
+      item.id === departmentNameOrShort
+  );
+  return d ? d.majors : STUDY_MAJORS;
+}
+
 export type YearRoman = 'I' | 'II' | 'III' | 'IV';
 
 export interface YearOption {
