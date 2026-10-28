@@ -98,4 +98,23 @@ describe('Calculator', () => {
     await component['saveGradesToCloud']();
     expect(component['hasUnsavedChanges']()).toBe(false);
   });
+
+  it('should truncate the weighted average to 2 decimal places without rounding up (e.g. 8.066 -> 8.06)', () => {
+    studyContext.setProfile('Calculatoare', 'II', 'Semestrul I');
+    const grades: Record<string, string> = {
+      'Analiza algoritmilor': '8',
+      'Structuri de date si algoritmi': '7',
+      'Dispozitive electronice si electronica analogica': '7',
+      'Programare in limbaj de asamblare': '7',
+      'Teoria probabilitatilor si statistica matematica': '9',
+      'Teoria sistemelor': '10',
+      'Programare orientata pe obiecte II': '9',
+      'Limba straina 3': '8',
+    };
+    for (const [sub, g] of Object.entries(grades)) {
+      component['setGrade'](sub, g);
+    }
+    // 242 / 30 = 8.0666... Truncated to 2 decimals gives 8.06
+    expect(component['weightedAverage']()).toBe(8.06);
+  });
 });

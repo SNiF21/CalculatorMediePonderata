@@ -7,7 +7,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "Calculator-Medie-Ponderata-Inginerie": {
+    "MediePonderataULBS": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -55,10 +55,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "Calculator-Medie-Ponderata-Inginerie:build:production"
+              "buildTarget": "MediePonderataULBS:build:production"
             },
             "development": {
-              "buildTarget": "Calculator-Medie-Ponderata-Inginerie:build:development"
+              "buildTarget": "MediePonderataULBS:build:development"
             }
           },
           "defaultConfiguration": "development"

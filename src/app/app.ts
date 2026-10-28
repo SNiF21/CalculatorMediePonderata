@@ -8,5 +8,5 @@ import { AppShell } from './appShell';
   styleUrls: ['./app.css'],
 })
 export class App {
-  protected readonly title = signal('Calculator-Medie-Ponderata-Inginerie');
+  protected readonly title = signal('MediePonderataULBS');
 }

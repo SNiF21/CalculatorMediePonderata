@@ -100,7 +100,8 @@ export class Calculator {
       }
     }
     if (creditsSum === 0) return null;
-    return Math.round((weightedSum / creditsSum) * 100) / 100;
+    // Truncate to 2 decimal places without rounding up (e.g. 8.066 -> 8.06)
+    return Math.floor((weightedSum / creditsSum) * 100 + 1e-9) / 100;
   });
 
   protected readonly hasFailingGrade = computed(() => {
