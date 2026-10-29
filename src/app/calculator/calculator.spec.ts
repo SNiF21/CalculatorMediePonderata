@@ -117,4 +117,31 @@ describe('Calculator', () => {
     // 242 / 30 = 8.0666... Truncated to 2 decimals gives 8.06
     expect(component['weightedAverage']()).toBe(8.06);
   });
+
+  it('should calculate annual average only when both semesters have grades', () => {
+    studyContext.setProfile('Calculatoare', 'I', 'Semestrul I');
+    expect(component.annualAverage()).toBeNull();
+    expect(component.hasBothSemesters()).toBe(false);
+
+    // Enter grade in Semester 1
+    const subsS1 = component.subjects();
+    component['setGrade'](subsS1[0].name, '8');
+
+    // S2 has no grades yet -> annualAverage must still be null
+    expect(component.annualAverage()).toBeNull();
+    expect(component.hasBothSemesters()).toBe(false);
+
+    // Provide a grade for S2 in otherSemesterGrades
+    const subsS2 = component['subjectsS2']();
+    const otherMap: Record<string, number | null> = {};
+    for (const s of subsS2) {
+      otherMap[s.name] = null;
+    }
+    otherMap[subsS2[0].name] = 10;
+    component['otherSemesterGrades'].set(otherMap);
+
+    // Now both semesters have grades
+    expect(component.hasBothSemesters()).toBe(true);
+    expect(component.annualAverage()).not.toBeNull();
+  });
 });

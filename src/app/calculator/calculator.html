@@ -212,4 +212,18 @@
     [semesterLabel]="studyContext.semester() === 'Semestrul I' ? '1' : '2'"
   ></app-calculator-results>
 
+  <!-- Annual Results Summary Card -->
+  <app-annual-results
+    [annualAverage]="annualAverage()"
+    [semester1Average]="semester1Average()"
+    [semester2Average]="semester2Average()"
+    [annualPassedCredits]="annualPassedCredits()"
+    [annualTotalCredits]="annualTotalCredits()"
+    [annualFailedCredits]="annualFailedCredits()"
+    [hasAnnualFailingGrade]="hasAnnualFailingGrade()"
+    [yearLabel]="studyContext.yearLabel()"
+    [hasBothSemesters]="hasBothSemesters()"
+    (switchSemester)="setSemester($event)"
+  ></app-annual-results>
+
 </section>
