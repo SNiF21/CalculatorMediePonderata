@@ -6,13 +6,13 @@ import { StudyContextService } from '../services/study-context.service';
 import { AuthService } from '../services/auth.service';
 import { GradesMap, GradesService } from '../services/grades.service';
 import { SemesterRoman, Subject } from '../models/studyProfile';
+import { CalculatorResultsComponent } from './components/calculator-results/calculator-results';
 
 @Component({
   selector: 'app-calculator',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, CalculatorResultsComponent],
   templateUrl: './calculator.html',
-  styleUrls: ['./calculator.css'],
 })
 export class Calculator {
   protected readonly studyContext = inject(StudyContextService);

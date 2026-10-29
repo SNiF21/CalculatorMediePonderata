@@ -25,7 +25,6 @@ type AuthMode = 'login' | 'register' | 'forgot';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './auth.html',
-  styleUrls: ['./auth.css'],
 })
 export class AuthComponent {
   protected readonly authService = inject(AuthService);
