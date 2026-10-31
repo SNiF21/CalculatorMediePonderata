@@ -36,6 +36,14 @@
         >
           Calculator
         </a>
+
+        <a
+          routerLink="/contact"
+          routerLinkActive="bg-blue-600 text-white font-semibold shadow-sm"
+          class="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/80 transition px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-medium"
+        >
+          Contact
+        </a>
       </nav>
 
       <!-- Theme Switcher Button -->
@@ -193,6 +201,13 @@
 <footer class="border-t border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/60 backdrop-blur-sm text-center text-xs text-slate-500 dark:text-slate-400 py-5 px-4 transition-colors">
   <div class="container mx-auto flex flex-col sm:flex-row items-center justify-center gap-2">
     <span>© {{ currentYear }} <strong class="text-slate-700 dark:text-slate-200">Colac Andrei-Catalin</strong>. Toate drepturile rezervate.</span>
+    <span class="hidden sm:inline text-slate-300 dark:text-slate-700">•</span>
+    <a
+      routerLink="/contact"
+      class="inline-flex items-center gap-1 text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition hover:underline"
+    >
+      <span>Contact & Raportare Probleme</span>
+    </a>
     <span class="hidden sm:inline text-slate-300 dark:text-slate-700">•</span>
     <a
       href="https://github.com/SNiF21"

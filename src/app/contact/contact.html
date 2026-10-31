@@ -1,0 +1,378 @@
+<section class="max-w-6xl mx-auto space-y-8 animate-fadeIn pb-12">
+
+  <!-- Page Header -->
+  <div class="bg-white/95 dark:bg-slate-900/90 backdrop-blur-md rounded-3xl p-6 sm:p-10 shadow-md border border-slate-200/80 dark:border-slate-800">
+    <div class="max-w-3xl">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 text-xs font-semibold mb-3 border border-blue-200/80 dark:border-blue-900/60 shadow-xs">
+        <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+        </svg>
+        <span>Asistență & Feedback Studenți</span>
+      </div>
+
+      <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+        Contact & Raportare Probleme
+      </h1>
+
+      <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400 mt-2.5 leading-relaxed">
+        Ai sesizat o discrepanță în numărul de credite ECTS, o materie lipsă în planul de învățământ sau o eroare tehnică a calculatorului? Transmite-ne detaliile prin formularul de mai jos pentru a actualiza aplicația.
+      </p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+    <!-- Left / Form Column (7 cols) -->
+    <div class="lg:col-span-7 bg-white/95 dark:bg-slate-900/90 backdrop-blur-md rounded-3xl p-6 sm:p-8 shadow-md border border-slate-200/80 dark:border-slate-800 space-y-6">
+
+      <!-- Success State Banner -->
+      <div *ngIf="submitSuccess()" class="p-6 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-emerald-900 dark:text-emerald-200 space-y-4 animate-fadeIn">
+        <div class="flex items-start gap-3">
+          <div class="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-bold text-base text-emerald-900 dark:text-emerald-100">Sesizare înregistrată cu succes!</h3>
+            <p class="text-xs sm:text-sm text-emerald-800 dark:text-emerald-300 mt-1">
+              {{ submitSuccess() }}
+            </p>
+            <div *ngIf="ticketId()" class="mt-2.5 inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-white/80 dark:bg-slate-900/80 border border-emerald-300 dark:border-emerald-700/60 text-xs font-mono font-bold text-emerald-700 dark:text-emerald-300">
+              <span>Număr tichet:</span>
+              <span class="tracking-wide">{{ ticketId() }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-2 flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            (click)="resetForm()"
+            class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition cursor-pointer shadow-xs"
+          >
+            Trimite alt mesaj
+          </button>
+          <a
+            routerLink="/calculator"
+            class="px-4 py-2 rounded-xl bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 text-xs font-semibold border border-slate-200 dark:border-slate-700 transition"
+          >
+            Înapoi la Calculator
+          </a>
+        </div>
+      </div>
+
+      <!-- Main Form -->
+      <form *ngIf="!submitSuccess()" (ngSubmit)="onSubmit()" class="space-y-6">
+
+        <!-- Error Notification -->
+        <div *ngIf="submitError()" class="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 text-xs text-rose-800 dark:text-rose-300 flex items-center gap-2 animate-fadeIn">
+          <svg class="w-4 h-4 shrink-0 text-rose-600 dark:text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>{{ submitError() }}</span>
+        </div>
+
+        <!-- 1. Category Selector -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2.5">
+            Tipul sesizării
+          </label>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <button
+              *ngFor="let c of categories"
+              type="button"
+              (click)="selectCategory(c.id)"
+              [class.bg-blue-50]="category() === c.id"
+              [class.dark:bg-blue-950/50]="category() === c.id"
+              [class.border-blue-600]="category() === c.id"
+              [class.text-blue-900]="category() === c.id"
+              [class.dark:text-blue-100]="category() === c.id"
+              [class.shadow-xs]="category() === c.id"
+              [class.bg-slate-50/70]="category() !== c.id"
+              [class.dark:bg-slate-800/60]="category() !== c.id"
+              [class.border-slate-200]="category() !== c.id"
+              [class.dark:border-slate-700]="category() !== c.id"
+              [class.text-slate-700]="category() !== c.id"
+              [class.dark:text-slate-300]="category() !== c.id"
+              class="p-3.5 text-left rounded-2xl border-2 transition-all cursor-pointer hover:border-blue-400 flex flex-col justify-between gap-2"
+            >
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-xs font-bold tracking-tight">{{ c.title }}</span>
+                <span
+                  class="w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 transition"
+                  [class.border-blue-600]="category() === c.id"
+                  [class.bg-blue-600]="category() === c.id"
+                  [class.border-slate-300]="category() !== c.id"
+                  [class.dark:border-slate-600]="category() !== c.id"
+                >
+                  <span *ngIf="category() === c.id" class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                </span>
+              </div>
+              <p class="text-[11px] opacity-75 leading-snug">
+                {{ c.description }}
+              </p>
+            </button>
+          </div>
+        </div>
+
+        <!-- 2. Contextual Curriculum Details (if category is 'credite') -->
+        <div *ngIf="category() === 'credite'" class="p-4 rounded-2xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200/80 dark:border-blue-900/50 space-y-3.5 animate-fadeIn">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-blue-900 dark:text-blue-200 flex items-center gap-1.5">
+              <span>Context Plan de Învățământ</span>
+            </span>
+            <span class="text-[10px] text-blue-700 dark:text-blue-300 opacity-80">Precompletat din profil</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            <div>
+              <label for="contactFaculty" class="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                Facultate
+              </label>
+              <input
+                id="contactFaculty"
+                type="text"
+                [ngModel]="faculty()"
+                (ngModelChange)="faculty.set($event)"
+                name="faculty"
+                placeholder="Facultatea de..."
+                class="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+              />
+            </div>
+
+            <div>
+              <label for="contactMajor" class="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                Specializare
+              </label>
+              <input
+                id="contactMajor"
+                type="text"
+                [ngModel]="major()"
+                (ngModelChange)="major.set($event)"
+                name="major"
+                placeholder="ex: Calculatoare, TI..."
+                class="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+              />
+            </div>
+
+            <div>
+              <label for="contactYear" class="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                An de studiu
+              </label>
+              <input
+                id="contactYear"
+                type="text"
+                [ngModel]="year()"
+                (ngModelChange)="year.set($event)"
+                name="year"
+                placeholder="ex: Anul III"
+                class="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+              />
+            </div>
+          </div>
+
+          <p class="text-[11px] text-blue-800 dark:text-blue-300 leading-normal">
+            Ajută-ne menționând în mesaj dacă ai un link sau o captură din fișa disciplinei / planul aprobat de senat.
+          </p>
+        </div>
+
+        <!-- 3. User Details: Name and Email -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="contactName" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+              Nume complet <span class="text-slate-400 font-normal">(opțional)</span>
+            </label>
+            <input
+              id="contactName"
+              type="text"
+              [ngModel]="name()"
+              (ngModelChange)="name.set($event)"
+              name="name"
+              placeholder="ex: Andrei Popa"
+              class="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition"
+            />
+          </div>
+
+          <div>
+            <label for="contactEmail" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+              Adresă de email <span class="text-rose-500">*</span>
+            </label>
+            <input
+              id="contactEmail"
+              type="email"
+              required
+              [ngModel]="email()"
+              (ngModelChange)="email.set($event)"
+              name="email"
+              placeholder="prenume.nume@ulbsibiu.ro"
+              [class.border-rose-400]="formSubmitted() && !isEmailValid()"
+              [class.focus:border-rose-500]="formSubmitted() && !isEmailValid()"
+              class="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition"
+            />
+            <p *ngIf="formSubmitted() && !isEmailValid()" class="text-[11px] text-rose-500 mt-1 font-medium animate-fadeIn">
+              Te rugăm să introduci o adresă de email validă (ex: nume@ulbsibiu.ro).
+            </p>
+          </div>
+        </div>
+
+        <!-- 4. Subject Title -->
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label for="contactTitle" class="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+              Subiectul sesizării <span class="text-rose-500">*</span>
+            </label>
+            <span class="text-[11px] text-slate-400 font-normal">Minim 3 caractere</span>
+          </div>
+          <input
+            id="contactTitle"
+            type="text"
+            required
+            [ngModel]="subjectTitle()"
+            (ngModelChange)="subjectTitle.set($event)"
+            name="subjectTitle"
+            [placeholder]="category() === 'credite' ? 'ex: Materia X are 5 credite în loc de 4 la semestrul 2' : 'ex: Descriere scurtă a problemei...'"
+            [class.border-rose-400]="formSubmitted() && !isSubjectValid()"
+            [class.focus:border-rose-500]="formSubmitted() && !isSubjectValid()"
+            class="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition"
+          />
+          <p *ngIf="formSubmitted() && !isSubjectValid()" class="text-[11px] text-rose-500 mt-1 font-medium animate-fadeIn">
+            Subiectul este obligatoriu și trebuie să aibă cel puțin 3 caractere.
+          </p>
+        </div>
+
+        <!-- 5. Message Body -->
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label for="contactMessage" class="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+              Descrierea detaliată a problemei <span class="text-rose-500">*</span>
+            </label>
+            <span
+              class="text-[11px] font-mono transition"
+              [class.text-emerald-600]="isMessageValid()"
+              [class.dark:text-emerald-400]="isMessageValid()"
+              [class.text-slate-400]="!isMessageValid()"
+            >
+              {{ message().trim().length }} / 10 caractere minime
+            </span>
+          </div>
+          <textarea
+            id="contactMessage"
+            required
+            rows="5"
+            [ngModel]="message()"
+            (ngModelChange)="message.set($event)"
+            name="message"
+            [placeholder]="category() === 'credite' ? 'Te rugăm să descrii problema exact: ce materie este vizată, la ce facultate/an/semestru, ce număr de credite ar trebui să aibă sau ce opționale lipsesc...' : 'Descrie problema întâmpinată, pașii pentru reproducere sau sugestia ta...'"
+            [class.border-rose-400]="formSubmitted() && !isMessageValid()"
+            [class.focus:border-rose-500]="formSubmitted() && !isMessageValid()"
+            class="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition resize-y"
+          ></textarea>
+          <p *ngIf="formSubmitted() && !isMessageValid()" class="text-[11px] text-rose-500 mt-1 font-medium animate-fadeIn">
+            Descrierea trebuie să aibă cel puțin 10 caractere (ai introdus {{ message().trim().length }}).
+          </p>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="pt-2 flex items-center justify-between gap-4">
+          <button
+            type="submit"
+            [disabled]="isSubmitting()"
+            class="w-full sm:w-auto px-7 py-3.5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md shadow-blue-500/25 transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <svg *ngIf="isSubmitting()" class="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+            <span>{{ isSubmitting() ? 'Se trimite sesizarea...' : 'Trimite sesizarea' }}</span>
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+
+    <!-- Right / Information & Direct Channels Column (5 cols) -->
+    <div class="lg:col-span-5 space-y-6">
+
+      <!-- Credits Info Card -->
+      <div class="bg-white/95 dark:bg-slate-900/90 backdrop-blur-md rounded-3xl p-6 sm:p-7 shadow-md border border-slate-200/80 dark:border-slate-800 space-y-3.5">
+        <div class="w-10 h-10 rounded-2xl bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300 flex items-center justify-center font-bold text-sm">
+          ECTS
+        </div>
+        <h3 class="font-bold text-base text-slate-800 dark:text-white">
+          Cum actualizăm creditele și materiile?
+        </h3>
+        <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+          Programele de studiu din această aplicație sunt sincronizate cu fișele oficiale ale disciplinelor ULBS. Când comisiile didactice aprobă actualizări ale creditelor ECTS sau pachetelor de opționale, baza noastră de date este revizuită prompt pe baza sesizărilor primite de la studenți.
+        </p>
+      </div>
+
+      <!-- Developer Direct Contact Card -->
+      <div class="bg-white/95 dark:bg-slate-900/90 backdrop-blur-md rounded-3xl p-6 sm:p-7 shadow-md border border-slate-200/80 dark:border-slate-800 space-y-4">
+        <h3 class="font-bold text-base text-slate-800 dark:text-white">
+          Contact direct & Contribuții
+        </h3>
+
+        <div class="space-y-3 text-xs">
+          <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/60">
+            <div class="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 flex items-center justify-center font-semibold text-xs shrink-0">
+              @
+            </div>
+            <div class="min-w-0">
+              <div class="font-semibold text-slate-800 dark:text-slate-200">Email dezvoltator</div>
+              <a href="mailto:andi.cata4@gmail.com" class="text-blue-600 dark:text-blue-400 hover:underline truncate block">
+                andi.cata4&#64;gmail.com
+              </a>
+            </div>
+          </div>
+
+          <a
+            href="https://github.com/SNiF21"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/60 hover:border-blue-400 transition"
+          >
+            <div class="flex items-center gap-3">
+              <svg class="w-5 h-5 text-slate-700 dark:text-slate-300 fill-current shrink-0" viewBox="0 0 24 24">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+              </svg>
+              <div>
+                <div class="font-semibold text-slate-800 dark:text-slate-200">GitHub Repository</div>
+                <div class="text-[11px] text-slate-500">Deschide un Issue direct pe GitHub</div>
+              </div>
+            </div>
+            <span class="text-slate-400">→</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Local Recent Submissions Log (if user sent messages from this browser) -->
+      <div *ngIf="recentSubmissions().length > 0" class="bg-white/95 dark:bg-slate-900/90 backdrop-blur-md rounded-3xl p-6 shadow-md border border-slate-200/80 dark:border-slate-800 space-y-3">
+        <h4 class="text-xs font-bold text-slate-700 dark:text-slate-300">
+          Sesizările tale recente (salvate pe acest dispozitiv)
+        </h4>
+
+        <div class="space-y-2 max-h-56 overflow-y-auto pr-1">
+          <div
+            *ngFor="let s of recentSubmissions()"
+            class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 text-xs space-y-1"
+          >
+            <div class="flex items-center justify-between">
+              <span class="font-mono font-bold text-blue-600 dark:text-blue-400 text-[11px]">{{ s.id }}</span>
+              <span class="px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 text-[10px] font-semibold">
+                Trimis
+              </span>
+            </div>
+            <div class="font-medium text-slate-800 dark:text-slate-200 truncate">{{ s.subjectTitle }}</div>
+            <div class="text-[10px] text-slate-400">{{ s.createdAt | date:'dd.MM.yyyy HH:mm' }}</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+

@@ -14,4 +14,7 @@ export const environment = {
     measurementId: 'YOUR_MEASUREMENT_ID',
   },
   institutionalDomain: 'ulbsibiu.ro',
+  web3forms: {
+    accessKey: 'YOUR_WEB3FORMS_ACCESS_KEY',
+  },
 };
