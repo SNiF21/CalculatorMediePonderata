@@ -12,6 +12,7 @@ import {
   YearRoman,
   buildCurriculumKey,
   getDepartmentsForFaculty,
+  getFacultyIcon,
   getMajorsForDepartment,
 } from '../models/studyProfile';
 import { CURRICULUM_DATA } from '../data/curriculumData';
@@ -38,6 +39,7 @@ export class StudyContextService {
   public readonly semesters = STUDY_SEMESTERS;
 
   public readonly faculty = signal<string>(DEFAULT_FACULTY);
+  public readonly facultyIcon = computed(() => getFacultyIcon(this.faculty()));
   public readonly department = signal<string>(DEFAULT_DEPARTMENT);
   public readonly major = signal<StudyMajor>('Calculatoare');
   public readonly year = signal<YearRoman>('I');

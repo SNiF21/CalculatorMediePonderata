@@ -4,11 +4,19 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { StudyContextService } from '../services/study-context.service';
 import { AuthService } from '../services/auth.service';
-import { GradesMap, GradesService } from '../services/grades.service';
-import { SemesterRoman, Subject, buildCurriculumKey } from '../models/studyProfile';
+import { GradesMap, GradesService, OptionsMap } from '../services/grades.service';
+import {
+  SemesterRoman,
+  Subject,
+  buildCurriculumKey,
+  isOptionalSubject,
+  getSubjectOptions,
+} from '../models/studyProfile';
 import { CURRICULUM_DATA } from '../data/curriculumData';
 import { CalculatorResultsComponent } from './components/calculator-results/calculator-results';
 import { AnnualResultsComponent } from './components/annual-results/annual-results';
+
+export type SortOrder = 'default' | 'alfabetic' | 'crescator' | 'descrescator';
 
 @Component({
   selector: 'app-calculator',
@@ -30,7 +38,84 @@ export class Calculator {
   public readonly subjects = computed<Subject[]>(() => this.studyContext.subjects());
   public readonly curriculumKey = computed(() => this.studyContext.curriculumKey());
 
+  public readonly sortOrder = signal<SortOrder>('default');
+
+  public setSortOrder(order: SortOrder): void {
+    this.sortOrder.set(order);
+  }
+
+  public readonly orderedSubjects = computed<Subject[]>(() => {
+    const order = this.sortOrder();
+    const list = [...this.subjects()];
+    const gMap = this.grades();
+
+    if (order === 'alfabetic') {
+      return list.sort((a, b) => a.name.localeCompare(b.name, 'ro', { sensitivity: 'base' }));
+    }
+
+    if (order === 'crescator') {
+      return list.sort((a, b) => {
+        const gA = gMap[a.name];
+        const gB = gMap[b.name];
+        if (gA != null && gB != null) {
+          if (gA !== gB) return gA - gB;
+          return a.credits !== b.credits ? a.credits - b.credits : a.name.localeCompare(b.name, 'ro');
+        }
+        if (gA != null && gB == null) return -1;
+        if (gA == null && gB != null) return 1;
+        return a.credits !== b.credits ? a.credits - b.credits : a.name.localeCompare(b.name, 'ro');
+      });
+    }
+
+    if (order === 'descrescator') {
+      return list.sort((a, b) => {
+        const gA = gMap[a.name];
+        const gB = gMap[b.name];
+        if (gA != null && gB != null) {
+          if (gA !== gB) return gB - gA;
+          return b.credits !== a.credits ? b.credits - a.credits : a.name.localeCompare(b.name, 'ro');
+        }
+        if (gA != null && gB == null) return -1;
+        if (gA == null && gB != null) return 1;
+        return b.credits !== a.credits ? b.credits - a.credits : a.name.localeCompare(b.name, 'ro');
+      });
+    }
+
+    return list;
+  });
+
+  public getEvaluationBadge(type: string): { label: string; classes: string } {
+    const norm = (type ?? '').toLowerCase();
+    if (norm.includes('examen')) {
+      return {
+        label: 'Examen',
+        classes:
+          'bg-blue-50 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300 border-blue-200/80 dark:border-blue-800/60',
+      };
+    }
+    if (norm.includes('colocviu')) {
+      return {
+        label: 'Colocviu',
+        classes:
+          'bg-amber-50 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 border-amber-200/80 dark:border-amber-800/60',
+      };
+    }
+    if (norm.includes('proiect') || norm.includes('verificare')) {
+      return {
+        label: type || 'Proiect',
+        classes:
+          'bg-teal-50 dark:bg-teal-950/70 text-teal-700 dark:text-teal-300 border-teal-200/80 dark:border-teal-800/60',
+      };
+    }
+    return {
+      label: type || 'Evaluare',
+      classes:
+        'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700',
+    };
+  }
+
   protected readonly grades = signal<GradesMap>({});
+  public readonly selectedOptions = signal<OptionsMap>({});
 
   /**
    * Total credits available in the semester curriculum (typically 30).
@@ -308,13 +393,75 @@ export class Calculator {
         this.saveError.set(null);
       });
 
+      this.gradesService.loadOptions(key).then((loadedOpts) => {
+        this.selectedOptions.set(loadedOpts);
+      });
+
       this.gradesService.loadGrades(otherKey, otherSubs).then((otherLoaded) => {
         this.otherSemesterGrades.set(otherLoaded);
       });
     });
   }
 
+  public isOptional(subject: Subject): boolean {
+    return isOptionalSubject(subject);
+  }
+
+  public getSelectedOption(subjectName: string): string {
+    return this.selectedOptions()[subjectName] ?? '';
+  }
+
+  public isGradeDisabled(subject: Subject): boolean {
+    if (this.isOptional(subject)) {
+      const chosen = this.getSelectedOption(subject.name);
+      return !chosen || chosen.trim() === '';
+    }
+    return false;
+  }
+
+  public getAvailableOptions(subject: Subject): string[] {
+    const allOpts = getSubjectOptions(subject);
+    const currentChoice = this.getSelectedOption(subject.name);
+    const currentSelections = this.selectedOptions();
+
+    // Find all choices made by other optional subjects in the active semester
+    const takenByOthers = new Set<string>();
+    for (const s of this.subjects()) {
+      if (s.name !== subject.name && this.isOptional(s)) {
+        const chosen = currentSelections[s.name];
+        if (chosen && chosen.trim() !== '') {
+          takenByOthers.add(chosen);
+        }
+      }
+    }
+
+    // Allow current choice or any option not chosen by another optional
+    return allOpts.filter((opt) => opt === currentChoice || !takenByOthers.has(opt));
+  }
+
+  public setOptionalCourse(subjectName: string, option: string): void {
+    const next = { ...this.selectedOptions() };
+    if (!option || option.trim() === '') {
+      delete next[subjectName];
+      // Reset grade for this optional if unselected
+      const nextGrades = { ...this.grades() };
+      nextGrades[subjectName] = null;
+      this.grades.set(nextGrades);
+      this.gradesService.saveGradesLocally(this.curriculumKey(), nextGrades);
+    } else {
+      next[subjectName] = option.trim();
+    }
+    this.selectedOptions.set(next);
+    this.gradesService.saveOptionsLocally(this.curriculumKey(), next);
+    this.hasUnsavedChanges.set(true);
+  }
+
   protected setGrade(subjectName: string, value: string): void {
+    const sub = this.subjects().find((s) => s.name === subjectName);
+    if (sub && this.isGradeDisabled(sub)) {
+      return;
+    }
+
     const trimmed = value.trim();
     const next = { ...this.grades() };
     if (trimmed === '') {
@@ -340,7 +487,11 @@ export class Calculator {
     this.saveSuccess.set(null);
     this.saveError.set(null);
     try {
-      await this.gradesService.saveGradesToCloud(this.curriculumKey(), this.grades());
+      await this.gradesService.saveGradesToCloud(
+        this.curriculumKey(),
+        this.grades(),
+        this.selectedOptions()
+      );
       this.hasUnsavedChanges.set(false);
       this.saveSuccess.set('Notele au fost salvate cu succes în contul tău!');
       setTimeout(() => {
@@ -356,6 +507,8 @@ export class Calculator {
   protected async resetGrades(): Promise<void> {
     const cleared = await this.gradesService.clearGrades(this.curriculumKey(), this.subjects());
     this.grades.set(cleared);
+    this.selectedOptions.set({});
+    this.gradesService.saveOptionsLocally(this.curriculumKey(), {});
     this.hasUnsavedChanges.set(false);
     this.saveSuccess.set('Notele semestrului au fost resetate.');
     setTimeout(() => {

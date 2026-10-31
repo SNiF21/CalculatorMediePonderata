@@ -1,78 +1,175 @@
 {
-    "Tehnologia Informației - Anul 1, Semestrul 1": [
-        { "name": "Limbaje de Programare", "credits": 5, "type": "Examen" },
-        { "name": "Analiză Matematică", "credits": 5, "type": "Examen" },
-        { "name": "Algebră Liniară, geometrie analitică și diferențiala", "credits": 4, "type": "Examen" },
-        { "name": "Fizica", "credits": 4, "type": "Examen" },
-        { "name": "Bazele Programării Calculatoarelor", "credits": 5, "type": "Examen" },
-        { "name": "Informatică Aplicată", "credits": 4, "type": "Colocviu" },
-        { "name": "Limbă Străină 1", "credits": 2, "type": "Colocviu" },
-        { "name": "Educație Fizică și Sport 1", "credits": 1, "type": "Colocviu" }
-    ],
-    "Tehnologia Informației - Anul 1, Semestrul 2": [
-        { "name": "Programare Orientată pe Obiecte", "credits": 5, "type": "Examen" },
-        { "name": "Matematici speciale", "credits": 5, "type": "Examen" },
-        { "name": "Electrotehnică", "credits": 5, "type": "Examen" },
-        { "name": "Proiectare logică", "credits": 5, "type": "Examen" },
-        { "name": "Metode Numerice", "credits": 4, "type": "Colocviu" },
-        { "name": "Tehnici de Comunicare Profesională", "credits": 3, "type": "Colocviu" },
-        { "name": "Limba străină 2", "credits": 2, "type": "Colocviu" },
-        { "name": "Educație fizică și sport 2", "credits": 1, "type": "Colocviu" }
-    ],
-    "Tehnologia Informației - Anul 2, Semestrul 1": [
-        { "name": "Proiectarea algoritmilor", "credits": 4, "type": "Examen" },
-        { "name": "Structuri de date și algoritmi", "credits": 4, "type": "Examen" },
-        { "name": "Dispozitive electronice și electronică analogică", "credits": 4, "type": "Examen" },
-        { "name": "Programare în limbaj de asamblare", "credits": 5, "type": "Examen" },
-        { "name": "Teoria probabilităților și statistică matematică", "credits": 5, "type": "Examen" },
-        { "name": "Teoria sistemelor", "credits": 4, "type": "Colocviu" },
-        { "name": "Programare orientată pe obiecte II", "credits": 2, "type": "Verificare (Proiect)" },
-        { "name": "Limba străină 3", "credits": 2, "type": "Colocviu" }
-    ],
-    "Tehnologia Informației - Anul 2, Semestrul 2": [
-        { "name": "Proiectare Software", "credits": 4, "type": "Examen" },
-        { "name": "Sisteme de intrare - ieșire și echipamente periferice", "credits": 4, "type": "Examen" },
-        { "name": "Grafică asistată de calculator", "credits": 4, "type": "Examen" },
-        { "name": "Programare WEB", "credits": 4, "type": "Examen" },
-        { "name": "Electronică digitală", "credits": 4, "type": "Colocviu" },
-        { "name": "Măsurători electronice, senzori și traductoare", "credits": 4, "type": "Colocviu" },
-        { "name": "Limba străină 4", "credits": 2, "type": "Colocviu" },
-        { "name": "Practică de Domeniu", "credits": 4, "type": "Colocviu" }
-    ],
-    "Tehnologia Informației - Anul 3, Semestrul 1": [
-        { "name": "Calculatoare numerice", "credits": 5, "type": "Examen" },
-        { "name": "Rețele locale", "credits": 5, "type": "Examen" },
-        { "name": "Limbaje formale și translatoare", "credits": 5, "type": "Examen" },
-        { "name": "Ingineria Programelor I", "credits": 4, "type": "Examen" },
-        { "name": "Baze de date", "credits": 5, "type": "Colocviu" },
-        { "name": "Sisteme de Recunoaștere a Formelor", "credits": 4, "type": "Colocviu" },
-        { "name": "Ingineria Programelor", "credits": 2, "type": "Verificare (Proiect)" }
-    ],
-    "Tehnologia Informației - Anul 3, Semestrul 2": [
-        { "name": "Programare Funcțională", "credits": 4, "type": "Examen" },
-        { "name": "Sisteme cu Microprocesoare", "credits": 4, "type": "Examen" },
-        { "name": "Sisteme de operare", "credits": 4, "type": "Examen" },
-        { "name": "Tehnologii Multimedia", "credits": 4, "type": "Examen" },
-        { "name": "Inteligență artificială I", "credits": 4, "type": "Examen" },
-        { "name": "Inteligență artificială II", "credits": 2, "type": "Verificare (Proiect)" },
-        { "name": "Optional 1", "credits": 2, "type": "Colocviu" },
-        { "name": "Optional 2", "credits": 2, "type": "Colocviu" },
-        { "name": "Practică de Domeniu", "credits": 4, "type": "Colocviu" }
-    ],
-    "Tehnologia Informației - Anul 4, Semestrul 1": [
-        { "name": "Simularea și Optimizarea Arhitecturilor de Calcul", "credits": 5, "type": "Examen" },
-        { "name": "Prelucrarea Grafică", "credits": 5, "type": "Examen" },
-        { "name": "Optional 1", "credits": 4, "type": "Examen" },
-        { "name": "Optional 2", "credits": 4, "type": "Examen" },
-        { "name": "Optional 3", "credits": 4, "type": "Examen" },
-        { "name": "Optional 4", "credits": 4, "type": "Examen" }
-    ],
-    "Tehnologia Informației - Anul 4, Semestrul 2": [
-        { "name": "Arhitecturi și Prelucrări Paralele", "credits": 4, "type": "Examen" },
-        { "name": "Optional 1", "credits": 4, "type": "Examen" },
-        { "name": "Optional 2", "credits": 4, "type": "Examen" },
-        { "name": "Optional 3", "credits": 4, "type": "Examen" },
-        { "name": "Elaborare proiect de diplomă", "credits": 4, "type": "Colocviu" },
-        { "name": "Practică pentru Proiectul de Diplomă", "credits": 10, "type": "Colocviu" }
-    ]
+  "Tehnologia Informației - Anul 1, Semestrul 1": [
+    { "name": "Limbaje de programare", "credits": 5, "type": "Examen" },
+    { "name": "Analiză matematică", "credits": 5, "type": "Examen" },
+    { "name": "Algebră liniară, geometrie analitică și diferențială", "credits": 4, "type": "Examen" },
+    { "name": "Fizică", "credits": 4, "type": "Examen" },
+    { "name": "Bazele programării calculatoarelor", "credits": 5, "type": "Examen" },
+    { "name": "Informatică aplicată", "credits": 4, "type": "Colocviu" },
+    { "name": "Limbă străină 1", "credits": 2, "type": "Colocviu" },
+    { "name": "Educație fizică și sport 1", "credits": 1, "type": "Colocviu" }
+  ],
+  "Tehnologia Informației - Anul 1, Semestrul 2": [
+    { "name": "Programare orientată pe obiecte", "credits": 5, "type": "Examen" },
+    { "name": "Matematici speciale", "credits": 5, "type": "Examen" },
+    { "name": "Electrotehnică", "credits": 5, "type": "Examen" },
+    { "name": "Proiectare logică", "credits": 5, "type": "Examen" },
+    { "name": "Metode numerice", "credits": 4, "type": "Colocviu" },
+    { "name": "Tehnici de comunicare profesională", "credits": 3, "type": "Colocviu" },
+    { "name": "Limbă străină 2", "credits": 2, "type": "Colocviu" },
+    { "name": "Educație fizică și sport 2", "credits": 1, "type": "Colocviu" }
+  ],
+  "Tehnologia Informației - Anul 2, Semestrul 1": [
+    { "name": "Proiectarea algoritmilor", "credits": 4, "type": "Examen" },
+    { "name": "Structuri de date și algoritmi", "credits": 4, "type": "Examen" },
+    { "name": "Dispozitive electronice și electronică analogică", "credits": 4, "type": "Examen" },
+    { "name": "Programare în limbaj de asamblare", "credits": 5, "type": "Examen" },
+    { "name": "Teoria probabilităților și statistică matematică", "credits": 5, "type": "Examen" },
+    { "name": "Teoria sistemelor", "credits": 4, "type": "Colocviu" },
+    { "name": "Programare orientată pe obiecte II", "credits": 2, "type": "Verificare (Proiect)" },
+    { "name": "Limbă străină 3", "credits": 2, "type": "Colocviu" }
+  ],
+  "Tehnologia Informației - Anul 2, Semestrul 2": [
+    { "name": "Proiectare software", "credits": 4, "type": "Examen" },
+    { "name": "Sisteme de intrare-ieșire și echipamente periferice", "credits": 4, "type": "Examen" },
+    { "name": "Grafică asistată de calculator", "credits": 4, "type": "Examen" },
+    { "name": "Programare Web", "credits": 4, "type": "Examen" },
+    { "name": "Electronică digitală", "credits": 4, "type": "Colocviu" },
+    { "name": "Măsurători electronice, senzori și traductoare", "credits": 4, "type": "Colocviu" },
+    { "name": "Limbă străină 4", "credits": 2, "type": "Colocviu" },
+    { "name": "Practică de domeniu", "credits": 4, "type": "Colocviu" }
+  ],
+  "Tehnologia Informației - Anul 3, Semestrul 1": [
+    { "name": "Calculatoare numerice", "credits": 5, "type": "Examen" },
+    { "name": "Rețele locale", "credits": 5, "type": "Examen" },
+    { "name": "Limbaje formale și translatoare", "credits": 5, "type": "Examen" },
+    { "name": "Ingineria programelor I", "credits": 4, "type": "Examen" },
+    { "name": "Baze de date", "credits": 5, "type": "Colocviu" },
+    { "name": "Sisteme de recunoaștere a formelor", "credits": 4, "type": "Colocviu" },
+    { "name": "Ingineria programelor II", "credits": 2, "type": "Verificare (Proiect)" }
+  ],
+  "Tehnologia Informației - Anul 3, Semestrul 2": [
+    { "name": "Programare funcțională", "credits": 4, "type": "Examen" },
+    { "name": "Sisteme cu microprocesoare", "credits": 4, "type": "Examen" },
+    { "name": "Sisteme de operare", "credits": 4, "type": "Examen" },
+    { "name": "Tehnologii multimedia", "credits": 4, "type": "Examen" },
+    { "name": "Inteligență artificială I", "credits": 4, "type": "Examen" },
+    { "name": "Inteligență artificială II", "credits": 2, "type": "Verificare (Proiect)" },
+    {
+      "name": "Opțional 5",
+      "credits": 2,
+      "type": "Colocviu",
+      "isOptional": true,
+      "options": [
+        "Sisteme CAD-CASE",
+        "Limbaje de descriere hardware"
+      ]
+    },
+    {
+      "name": "Opțional 6",
+      "credits": 2,
+      "type": "Colocviu",
+      "isOptional": true,
+      "options": [
+        "Economia firmei",
+        "Marketing industrial"
+      ]
+    },
+    { "name": "Practică de domeniu", "credits": 4, "type": "Colocviu" }
+  ],
+  "Tehnologia Informației - Anul 4, Semestrul 1": [
+    { "name": "Simularea și optimizarea arhitecturilor de calcul", "credits": 5, "type": "Colocviu" },
+    { "name": "Prelucrarea grafică", "credits": 5, "type": "Examen" },
+    {
+      "name": "Opțional 7",
+      "credits": 4,
+      "type": "Examen",
+      "isOptional": true,
+      "options": [
+        "E-Commerce",
+        "Învățare automată",
+        "Procesarea semnalelor",
+        "Criptografie și securitate informațională",
+        "Instrumente pentru dezvoltarea programelor"
+      ]
+    },
+    {
+      "name": "Opțional 8",
+      "credits": 4,
+      "type": "Examen",
+      "isOptional": true,
+      "options": [
+        "E-Commerce",
+        "Învățare automată",
+        "Procesarea semnalelor",
+        "Criptografie și securitate informațională",
+        "Instrumente pentru dezvoltarea programelor"
+      ]
+    },
+    {
+      "name": "Opțional 9",
+      "credits": 4,
+      "type": "Examen",
+      "isOptional": true,
+      "options": [
+        "E-Commerce",
+        "Învățare automată",
+        "Procesarea semnalelor",
+        "Criptografie și securitate informațională",
+        "Instrumente pentru dezvoltarea programelor"
+      ]
+    },
+    {
+      "name": "Opțional 10",
+      "credits": 4,
+      "type": "Examen",
+      "isOptional": true,
+      "options": [
+        "E-Commerce",
+        "Învățare automată",
+        "Procesarea semnalelor",
+        "Criptografie și securitate informațională",
+        "Instrumente pentru dezvoltarea programelor"
+      ]
+    }
+  ],
+  "Tehnologia Informației - Anul 4, Semestrul 2": [
+    { "name": "Arhitecturi și prelucrări paralele", "credits": 4, "type": "Examen" },
+    {
+      "name": "Opțional 11",
+      "credits": 4,
+      "type": "Examen",
+      "isOptional": true,
+      "options": [
+        "Algoritmi paraleli și distribuiți",
+        "Testarea sistemelor de calcul"
+      ]
+    },
+    {
+      "name": "Opțional 12",
+      "credits": 4,
+      "type": "Examen",
+      "isOptional": true,
+      "options": [
+        "Sisteme tolerante la defecte",
+        "Sisteme de prelucrare grafică",
+        "Integrarea sistemelor informatice",
+        "Sisteme încorporate"
+      ]
+    },
+    {
+      "name": "Opțional 13",
+      "credits": 4,
+      "type": "Examen",
+      "isOptional": true,
+      "options": [
+        "Sisteme tolerante la defecte",
+        "Sisteme de prelucrare grafică",
+        "Integrarea sistemelor informatice",
+        "Sisteme încorporate"
+      ]
+    },
+    { "name": "Elaborare proiect de diplomă", "credits": 4, "type": "Colocviu" },
+    { "name": "Practică pentru proiectul de diplomă", "credits": 10, "type": "Colocviu" }
+  ]
 }

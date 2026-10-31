@@ -1,6 +1,5 @@
 <!-- Top Disclaimer Banner -->
 <div class="bg-amber-500/10 dark:bg-amber-950/40 border-b border-amber-200/70 dark:border-amber-900/40 text-amber-900 dark:text-amber-300 text-[11px] sm:text-xs py-1.5 px-4 text-center flex items-center justify-center gap-1.5 font-medium tracking-wide transition-colors">
-  <span class="text-xs">⚠️</span>
   <span>Aplicație WEB neoficială, neafiliată ULBS</span>
 </div>
 
@@ -9,7 +8,7 @@
     
     <!-- Logo / Brand -->
     <div class="flex items-center space-x-3">
-      <img src="icon.png" alt="Icon" class="w-9 h-9 sm:w-10 sm:h-10 object-contain dark:invert select-none" />
+      <img src="assets/icon.png" alt="Icon" class="w-9 h-9 sm:w-10 sm:h-10 object-contain dark:invert select-none" />
       <a routerLink="/" class="text-lg md:text-xl font-bold tracking-tight text-slate-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition">
         Calculator Medie Ponderată
       </a>
@@ -47,8 +46,12 @@
         aria-label="Comută tema"
         class="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/60 transition cursor-pointer flex items-center justify-center"
       >
-        <span *ngIf="!themeService.isDark()" class="text-sm select-none" aria-hidden="true">🌙</span>
-        <span *ngIf="themeService.isDark()" class="text-sm select-none" aria-hidden="true">☀️</span>
+        <svg *ngIf="!themeService.isDark()" class="w-4 h-4 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+        </svg>
+        <svg *ngIf="themeService.isDark()" class="w-4 h-4 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
       </button>
 
       <!-- Authenticated Student State -->
@@ -101,13 +104,15 @@
       <div class="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-3xl p-6 sm:p-10 shadow-2xl border border-amber-200/80 dark:border-amber-900/50 text-center space-y-6">
         
         <!-- Big Animated Icon -->
-        <div class="w-20 h-20 mx-auto rounded-3xl bg-amber-500/10 dark:bg-amber-500/20 text-amber-500 flex items-center justify-center text-4xl shadow-inner select-none">
-          ✉️
+        <div class="w-20 h-20 mx-auto rounded-3xl bg-amber-500/10 dark:bg-amber-500/20 text-amber-500 flex items-center justify-center shadow-inner select-none">
+          <svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
         </div>
 
         <div>
           <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800/80 mb-3">
-            ⚠️ Pas Obligatoriu • Confirmare Cont
+            Pas Obligatoriu • Confirmare Cont
           </span>
           <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
             Validează adresa de email
@@ -122,7 +127,7 @@
 
         <div class="p-3.5 rounded-2xl bg-blue-50/60 dark:bg-blue-950/30 border border-blue-200/60 dark:border-blue-900/40 text-left text-xs text-slate-600 dark:text-slate-300 space-y-1.5">
           <p class="font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-1.5">
-            <span>ℹ️</span> Ce trebuie să faci:
+            Ce trebuie să faci:
           </p>
           <ol class="list-decimal list-inside space-y-1 text-slate-600 dark:text-slate-400 pl-1">
             <li>Deschide căsuța poștală <strong>{{ authService.studentEmail() }}</strong> (Webmail ULBS / Outlook).</li>
@@ -134,12 +139,10 @@
 
         <!-- Feedback Alert Messages -->
         <div *ngIf="verificationNotice()" class="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-xs font-medium text-emerald-800 dark:text-emerald-300 text-left flex items-start gap-2.5 animate-fadeIn">
-          <span class="text-base select-none">✓</span>
           <span class="leading-relaxed">{{ verificationNotice() }}</span>
         </div>
 
         <div *ngIf="verificationError()" class="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 text-xs font-medium text-rose-800 dark:text-rose-300 text-left flex items-start gap-2.5 animate-fadeIn">
-          <span class="text-base select-none">⚠️</span>
           <span class="leading-relaxed">{{ verificationError() }}</span>
         </div>
 
@@ -151,7 +154,10 @@
             [disabled]="isCheckingVerification()"
             class="w-full py-3.5 px-5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-lg shadow-blue-500/25 transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
           >
-            <span *ngIf="isCheckingVerification()" class="animate-spin text-base">🔄</span>
+            <svg *ngIf="isCheckingVerification()" class="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
             <span>{{ isCheckingVerification() ? 'Se verifică statusul...' : 'Am confirmat email-ul (Verifică acum)' }}</span>
           </button>
 

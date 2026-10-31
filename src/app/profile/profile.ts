@@ -9,6 +9,7 @@ import {
   StudyMajor,
   YearRoman,
   getDepartmentsForFaculty,
+  getFacultyIcon,
   getMajorsForDepartment,
 } from '../models/studyProfile';
 import { ChangePasswordModalComponent } from './components/change-password-modal/change-password-modal';
@@ -110,6 +111,9 @@ export class ProfileComponent {
   );
   protected readonly availableMajors = computed(() =>
     getMajorsForDepartment(this.selectedFaculty(), this.selectedDepartment())
+  );
+  protected readonly selectedFacultyIcon = computed(() =>
+    getFacultyIcon(this.selectedFaculty())
   );
 
   protected readonly hasProfileChanges = computed(() => {

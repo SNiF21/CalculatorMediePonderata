@@ -103,19 +103,62 @@ describe('Calculator', () => {
     studyContext.setProfile('Calculatoare', 'II', 'Semestrul I');
     const grades: Record<string, string> = {
       'Analiza algoritmilor': '8',
-      'Structuri de date si algoritmi': '7',
-      'Dispozitive electronice si electronica analogica': '7',
-      'Programare in limbaj de asamblare': '7',
-      'Teoria probabilitatilor si statistica matematica': '9',
+      'Structuri de date și algoritmi': '7',
+      'Dispozitive electronice și electronică analogică': '7',
+      'Programare în limbaj de asamblare': '7',
+      'Teoria probabilităților și statistică matematică': '9',
       'Teoria sistemelor': '10',
-      'Programare orientata pe obiecte II': '9',
-      'Limba straina 3': '8',
+      'Programare orientată pe obiecte II': '9',
+      'Limbă străină 3': '8',
     };
     for (const [sub, g] of Object.entries(grades)) {
       component['setGrade'](sub, g);
     }
     // 242 / 30 = 8.0666... Truncated to 2 decimals gives 8.06
     expect(component['weightedAverage']()).toBe(8.06);
+  });
+
+  it('should require selecting an optional course before grading and prevent duplicates in shared optionals pool', async () => {
+    studyContext.setProfile('Calculatoare', 'IV', 'Semestrul I');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const opt7 = component.subjects().find((s) => s.name === 'Opțional 7');
+    const opt8 = component.subjects().find((s) => s.name === 'Opțional 8');
+    expect(opt7).toBeDefined();
+    expect(opt8).toBeDefined();
+    expect(component.isOptional(opt7!)).toBe(true);
+    expect(component.isOptional(opt8!)).toBe(true);
+
+    // 1. Grade input is initially disabled for optional subject
+    expect(component.isGradeDisabled(opt7!)).toBe(true);
+    component['setGrade'](opt7!.name, '9');
+    expect(component['grades']()[opt7!.name]).toBeNull();
+
+    // 2. Both optionals have full list of 5 options
+    expect(component.getAvailableOptions(opt7!).length).toBe(5);
+    expect(component.getAvailableOptions(opt8!).length).toBe(5);
+
+    // 3. User selects "Învățare automată" for Opțional 7
+    component.setOptionalCourse(opt7!.name, 'Învățare automată');
+    expect(component.isGradeDisabled(opt7!)).toBe(false);
+
+    // Now grade can be entered
+    component['setGrade'](opt7!.name, '9');
+    expect(component['grades']()[opt7!.name]).toBe(9);
+
+    // 4. "Învățare automată" should be excluded from Opțional 8 available options
+    const opt8Available = component.getAvailableOptions(opt8!);
+    expect(opt8Available.length).toBe(4);
+    expect(opt8Available).not.toContain('Învățare automată');
+
+    // Opțional 7 still contains its chosen option
+    expect(component.getAvailableOptions(opt7!)).toContain('Învățare automată');
+
+    // 5. If Opțional 7 is changed to "E-Commerce", "Învățare automată" returns to Opțional 8
+    component.setOptionalCourse(opt7!.name, 'E-Commerce');
+    expect(component.getAvailableOptions(opt8!)).toContain('Învățare automată');
+    expect(component.getAvailableOptions(opt8!)).not.toContain('E-Commerce');
   });
 
   it('should calculate annual average only when both semesters have grades', () => {
@@ -143,5 +186,53 @@ describe('Calculator', () => {
     // Now both semesters have grades
     expect(component.hasBothSemesters()).toBe(true);
     expect(component.annualAverage()).not.toBeNull();
+  });
+
+  it('should support sorting subjects by default, alfabetic, crescator, descrescator and return evaluation badges', async () => {
+    studyContext.setProfile('Calculatoare', 'I', 'Semestrul I');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    // Default sorting preserves curriculum order
+    expect(component.sortOrder()).toBe('default');
+    const defaultSubs = component.orderedSubjects();
+    expect(defaultSubs.length).toBe(8);
+
+    // Alfabetic sorting
+    component.setSortOrder('alfabetic');
+    const alfabeticSubs = component.orderedSubjects();
+    const sortedNames = [...defaultSubs.map((s) => s.name)].sort((a, b) =>
+      a.localeCompare(b, 'ro', { sensitivity: 'base' })
+    );
+    expect(alfabeticSubs.map((s) => s.name)).toEqual(sortedNames);
+
+    // Set grades to test crescator / descrescator
+    component['setGrade'](alfabeticSubs[0].name, '6');
+    component['setGrade'](alfabeticSubs[1].name, '10');
+    component['setGrade'](alfabeticSubs[2].name, '8');
+
+    // Crescator: graded lowest to highest first
+    component.setSortOrder('crescator');
+    const crescatorSubs = component.orderedSubjects();
+    expect(component['grades']()[crescatorSubs[0].name]).toBe(6);
+    expect(component['grades']()[crescatorSubs[1].name]).toBe(8);
+    expect(component['grades']()[crescatorSubs[2].name]).toBe(10);
+
+    // Descrescator: graded highest to lowest first
+    component.setSortOrder('descrescator');
+    const descSubs = component.orderedSubjects();
+    expect(component['grades']()[descSubs[0].name]).toBe(10);
+    expect(component['grades']()[descSubs[1].name]).toBe(8);
+    expect(component['grades']()[descSubs[2].name]).toBe(6);
+
+    // Evaluation badge styling remains functional
+    const examBadge = component.getEvaluationBadge('Examen');
+    expect(examBadge.label).toBe('Examen');
+
+    const colBadge = component.getEvaluationBadge('Colocviu');
+    expect(colBadge.label).toBe('Colocviu');
+
+    const projBadge = component.getEvaluationBadge('Verificare (Proiect)');
+    expect(projBadge.label).toBe('Verificare (Proiect)');
   });
 });

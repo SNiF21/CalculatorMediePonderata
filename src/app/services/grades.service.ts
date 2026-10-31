@@ -5,6 +5,7 @@ import { AuthService } from './auth.service';
 import { Subject } from '../models/studyProfile';
 
 export type GradesMap = Record<string, number | null>;
+export type OptionsMap = Record<string, string>;
 
 @Injectable({
   providedIn: 'root',
@@ -81,6 +82,14 @@ export class GradesService {
             if (typeof localStorage !== 'undefined') {
               localStorage.setItem(`grades:${curriculumKey}`, JSON.stringify(initial));
             }
+            if (cloudData['selectedOptions']) {
+              if (typeof localStorage !== 'undefined') {
+                localStorage.setItem(
+                  `options:${curriculumKey}`,
+                  JSON.stringify(cloudData['selectedOptions'])
+                );
+              }
+            }
             this.lastSyncedAt.set(cloudData['updatedAt'] ?? new Date().toLocaleTimeString());
           }
         }
@@ -92,6 +101,37 @@ export class GradesService {
     }
 
     return initial;
+  }
+
+  /**
+   * Loads selected elective/optional course options for a given curriculum key.
+   */
+  public async loadOptions(curriculumKey: string): Promise<OptionsMap> {
+    const initial: OptionsMap = {};
+    if (typeof localStorage !== 'undefined') {
+      try {
+        const local = localStorage.getItem(`options:${curriculumKey}`);
+        if (local) {
+          return JSON.parse(local) as OptionsMap;
+        }
+      } catch {
+        // ignore storage errors
+      }
+    }
+    return initial;
+  }
+
+  /**
+   * Saves options locally.
+   */
+  public saveOptionsLocally(curriculumKey: string, options: OptionsMap): void {
+    if (typeof localStorage !== 'undefined') {
+      try {
+        localStorage.setItem(`options:${curriculumKey}`, JSON.stringify(options));
+      } catch {
+        // ignore storage errors
+      }
+    }
   }
 
   /**
@@ -117,8 +157,15 @@ export class GradesService {
   /**
    * Explicitly syncs grades to Firestore in the cloud when user clicks the save button.
    */
-  public async saveGradesToCloud(curriculumKey: string, grades: GradesMap): Promise<boolean> {
+  public async saveGradesToCloud(
+    curriculumKey: string,
+    grades: GradesMap,
+    options?: OptionsMap
+  ): Promise<boolean> {
     this.saveGradesLocally(curriculumKey, grades);
+    if (options) {
+      this.saveOptionsLocally(curriculumKey, options);
+    }
 
     const user = this.authService.user();
     if (!user || !this.firebase.firestore) {
@@ -136,9 +183,11 @@ export class GradesService {
       );
 
       const now = new Date().toISOString();
+      const currentOpts = options ?? (await this.loadOptions(curriculumKey));
       await setDoc(docRef, {
         curriculumKey,
         grades,
+        selectedOptions: currentOpts,
         updatedAt: now,
       });
 

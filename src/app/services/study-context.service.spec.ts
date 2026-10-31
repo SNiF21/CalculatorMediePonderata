@@ -42,6 +42,7 @@ describe('StudyContextService', () => {
 
   it('should initialize with Facultatea de Inginerie and departamentul CIE', () => {
     expect(service.faculty()).toBe('Facultatea de Inginerie');
+    expect(service.facultyIcon()).toContain('inginerie.png');
     expect(service.department()).toBe('CIE');
     expect(service.faculties.length).toBeGreaterThanOrEqual(1);
     expect(service.availableDepartments().length).toBeGreaterThanOrEqual(1);
